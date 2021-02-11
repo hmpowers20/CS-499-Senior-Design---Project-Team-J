@@ -11,8 +11,8 @@ public class MainGame
      * @throws IOException Thrown if there is a problem with input.
      */
     public static void main (String[] args) throws IOException {
-        JFrame window = trial.createWindow();  // create the window JFrame
-        GridMap map = new GridMap(600, 600,20,20);
+        JFrame window = Window.createWindow();  // create the window JFrame
+        GridMap map = new GridMap(500, 500,20,20);
         window.add(map);
         window.pack();
     }
