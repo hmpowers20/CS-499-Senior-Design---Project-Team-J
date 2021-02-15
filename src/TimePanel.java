@@ -22,6 +22,12 @@ public class TimePanel extends JPanel{
         start.setBounds(500, 180, size.width, size.height);
         start.setVisible(true);
         start.addActionListener(new starts(timer));
+        slide = new JSlider(0,100, 1);
+        slide.setMajorTickSpacing(20);
+        slide.setMinorTickSpacing(10);
+        slide.setPaintTicks(true);
+        slide.setPaintLabels(true);
+        slide.addChangeListener(new speed(timer));
         long sec = startTime % 60;
         long min = startTime / 60;
         long hrs = min / 60;
@@ -49,7 +55,7 @@ public class TimePanel extends JPanel{
         start.setBounds(500, 180, size.width, size.height);
         start.setVisible(true);
 
-        slide = new JSlider(0,100);
+        slide = new JSlider(0,100, 1);
         slide.setMajorTickSpacing(20);
         slide.setMinorTickSpacing(10);
         slide.setPaintTicks(true);
@@ -106,6 +112,8 @@ class starts implements ActionListener {
         if (!started) {
             timer.startTimer();
             started = true;
+            Icon pause = new ImageIcon("pause.png");
+            //actionEvent.getSource().setIcon(pause);
         }
         else {
             timer.pause();
