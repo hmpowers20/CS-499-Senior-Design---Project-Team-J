@@ -13,14 +13,14 @@ public class MainGame
      */
     public static void main (String[] args) throws IOException, InterruptedException {
         JFrame window = trial.createWindow();  // create the window JFrame
-        GridMap map = new GridMap(600, 600,20,20);
+        GridMap map = new GridMap(30, 30);
 
         Icon icon1 = new ImageIcon("play.png");
         Icon icon2 = new ImageIcon("save.png");
         JButton saveButton = new JButton(icon2);
         saveButton.setVisible(true);
         TimePanel timer = new TimePanel();
-
+      
         window.add(map);
         window.add(timer);
         window.add(saveButton);

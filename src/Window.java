@@ -1,7 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 
-public class trial {
+public class Window {
     /**
      * Creates a window with desired attributes.
      * @return JFrame representing our window.
