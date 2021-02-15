@@ -1,4 +1,6 @@
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -7,6 +9,7 @@ public class TimePanel extends JPanel{
     SimTimer timer;
     JButton start;
     JLabel time;
+    JSlider slide;
     boolean started;
 
     public TimePanel(long startTime) {
@@ -35,6 +38,7 @@ public class TimePanel extends JPanel{
         add(start);
     }
 
+
     public TimePanel() {
         timer = new SimTimer(this);
         Icon startIcon = new ImageIcon("play.png");
@@ -45,10 +49,19 @@ public class TimePanel extends JPanel{
         start.setBounds(500, 180, size.width, size.height);
         start.setVisible(true);
 
+        slide = new JSlider(0,100);
+        slide.setMajorTickSpacing(20);
+        slide.setMinorTickSpacing(10);
+        slide.setPaintTicks(true);
+        slide.setPaintLabels(true);
+        slide.addChangeListener(new speed(timer));
+
+
         start.addActionListener(new starts(timer));
         time = new JLabel("0 00:00:00");
         add(start);
         add(time);
+        add(slide);
 }
 
     public void update(int sec, int min, int hrs, int days) {
@@ -78,6 +91,8 @@ public class TimePanel extends JPanel{
         time.setText(strDays+" "+strHrs+":"+strMin+":"+strSec);
     }
 
+
+
 }
 
 class starts implements ActionListener {
@@ -94,6 +109,21 @@ class starts implements ActionListener {
         }
         else {
             timer.pause();
+        }
+    }
+}
+
+class speed implements ChangeListener {
+     SimTimer timer;
+    public speed(SimTimer timer) {
+        this.timer = timer;
+    }
+    @Override
+    public void stateChanged(ChangeEvent changeEvent) {
+        JSlider source = (JSlider)changeEvent.getSource();
+        if (!source.getValueIsAdjusting()) {
+            int fps = (int)source.getValue();
+                timer.adjustSpeed(fps);
         }
     }
 }
