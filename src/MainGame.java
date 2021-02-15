@@ -12,7 +12,7 @@ public class MainGame
      */
     public static void main (String[] args) throws IOException {
         JFrame window = Window.createWindow();  // create the window JFrame
-        GridMap map = new GridMap(500, 500,20,20);
+        GridMap map = new GridMap(30,30);
         window.add(map);
         window.pack();
     }

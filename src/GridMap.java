@@ -1,16 +1,34 @@
 import java.awt.*;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.concurrent.ThreadLocalRandom;
 import javax.swing.*;
+import java.util.Scanner;
 
 public class GridMap extends JComponent {
     int rows;
     int columns;
 
-    GridMap(int W, int H, int R, int C) {
-        setPreferredSize(new Dimension(W + 1, H + 1));
+    GridMap(int R, int C) throws FileNotFoundException {
         rows = R;
         columns = C;
         int tileSize = 32;
+        setPreferredSize(new Dimension(R * tileSize + 1, C * tileSize + 1));
+
+        Scanner scanner = new Scanner(new File("resources/mapdesign.csv"));
+        scanner.useDelimiter(",|\\r\\n|\\n");
+
+        int[][] values = new int[rows][columns];
+
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
+                if(scanner.hasNextInt()){
+                    values[i][j] = scanner.nextInt();
+                }
+            }
+        }
+
+        scanner.close();
 
         ImageIcon grassTileImage = new ImageIcon(new ImageIcon("images/grass.png").getImage().getScaledInstance(tileSize, tileSize,  Image.SCALE_SMOOTH));
         ImageIcon dirtTileImage = new ImageIcon(new ImageIcon("images/dirt.png").getImage().getScaledInstance(tileSize, tileSize,  Image.SCALE_SMOOTH));
@@ -23,7 +41,7 @@ public class GridMap extends JComponent {
             for (int j = 0; j < columns; j++)
             {
                 JLabel tile = new JLabel();
-                tile.setIcon(tiles[ThreadLocalRandom.current().nextInt(0, tiles.length)]);
+                tile.setIcon(tiles[values[i][j]]);
                 tile.setBounds(j * tileSize, i * tileSize, tileSize, tileSize);
                 add(tile);
             }
