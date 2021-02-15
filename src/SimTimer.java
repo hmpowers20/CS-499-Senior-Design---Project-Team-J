@@ -7,18 +7,21 @@ public class SimTimer {
     int int_hrs = 0;
     long resumeTime;
     boolean running;
+    int speed;
     TimePanel tPanel;
 
     public SimTimer(TimePanel tPanel) {
         resumeTime = 0;
         this.tPanel = tPanel;
         running = true;
+        speed = 1;
     }
 
     public SimTimer(long resumeTime, TimePanel tPanel) {
         this.resumeTime = resumeTime;
         this.tPanel = tPanel;
         running = true;
+        speed = 1;
     }
 
     public void startTimer(){
@@ -30,7 +33,7 @@ public class SimTimer {
                     while (true) {
                         if (running) {
                             Thread.sleep(1000);
-                            long now = System.currentTimeMillis() - startTime;
+                            long now = (System.currentTimeMillis() - startTime) * speed;
                             int total = (int) (now / 1000);
                             int_day = total / 86400;
                             total = total - int_day * 86400;
@@ -58,11 +61,15 @@ public class SimTimer {
         thread.start();
     }
     public void pause() {
-        if (running) {
-            running = false;
+        if (this.running) {
+            this.running = false;
         }
         else {
-            running = true;
+            this.running = true;
         }
+    }
+
+    public void adjustSpeed(int value) {
+        this.speed = value;
     }
 }
