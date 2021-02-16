@@ -6,6 +6,7 @@ public class SimTimer {
     int int_day=0;
     int int_hrs = 0;
     long resumeTime;
+    long relTime;
     boolean running;
     int speed;
     TimePanel tPanel;
@@ -15,9 +16,11 @@ public class SimTimer {
         this.tPanel = tPanel;
         running = true;
         speed = 1;
+        relTime = 0;
     }
 
     public SimTimer(long resumeTime, TimePanel tPanel) {
+        relTime = 0;
         this.resumeTime = resumeTime;
         this.tPanel = tPanel;
         running = true;
@@ -31,7 +34,6 @@ public class SimTimer {
             public void run() {
                 try {
                     long prevTime = 0;
-                    long relTime = 0; // You gotta account for relativity
                     while (true) {
                         if (running) {
                             Thread.sleep(100);
@@ -83,5 +85,9 @@ public class SimTimer {
 
     public void adjustSpeed(int value) {
         this.speed = value;
+    }
+
+    public long getTime() {
+        return relTime;
     }
 }

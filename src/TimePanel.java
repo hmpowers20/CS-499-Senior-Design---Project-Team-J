@@ -89,7 +89,7 @@ public class TimePanel extends JPanel {
         else {
             strMin = Integer.toString(min);
         }
-        if (hrs > 10) {
+        if (hrs < 10) {
             strHrs = "0"+Integer.toString(hrs);
         }
         else {
@@ -100,8 +100,9 @@ public class TimePanel extends JPanel {
 
         time.setText(strDays+" "+strHrs+":"+strMin+":"+strSec);
     }
-
-
+    public long getTime() {
+        return timer.getTime();
+    }
 
 }
 
