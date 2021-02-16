@@ -30,11 +30,15 @@ public class SimTimer {
             @Override
             public void run() {
                 try {
+                    long prevTime = 0;
+                    long relTime = 0; // You gotta account for relativity
                     while (true) {
                         if (running) {
-                            Thread.sleep(1000);
-                            long now = (System.currentTimeMillis() - startTime) * speed;
-                            int total = (int) (now / 1000);
+                            Thread.sleep(100);
+                            long diff = (System.currentTimeMillis() - prevTime - startTime) * speed;
+                            relTime = relTime + diff;
+                            prevTime = System.currentTimeMillis() - startTime;
+                            int total = (int) (relTime / 1000);
                             int_day = total / 86400;
                             total = total - int_day * 86400;
                             int_hrs = total / 3600;
@@ -43,8 +47,16 @@ public class SimTimer {
                             total = total - int_min * 60;
                             int_sec = total;
 
-
-                            tPanel.update(int_sec, int_min, int_hrs, int_day);
+                            if (running) {
+                                tPanel.update(int_sec, int_min, int_hrs, int_day);
+                            }
+                            else {
+                                startTime += 100;
+                            }
+                        }
+                        else {
+                            Thread.sleep(100);
+                            startTime += 100;
                         }
                     }
                 } catch (InterruptedException e) {
