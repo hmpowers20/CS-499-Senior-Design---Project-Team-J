@@ -4,10 +4,10 @@ import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-public class TimePanel extends JPanel{
-    JLabel displayTime;
+public class TimePanel extends JPanel {
+
+    JToggleButton start;
     SimTimer timer;
-    JButton start;
     JLabel time;
     JSlider slide;
     boolean started;
@@ -16,9 +16,11 @@ public class TimePanel extends JPanel{
         timer = new SimTimer(startTime, this);
         started = false;
         Icon startIcon = new ImageIcon("play.png");
-        start = new JButton(startIcon);
-
+        Icon pauseIcon = new ImageIcon("pause.png");
         Dimension size = start.getPreferredSize();
+        start = new JToggleButton();
+        start.setIcon(startIcon);
+        start.setSelectedIcon(pauseIcon);
         start.setBounds(500, 180, size.width, size.height);
         start.setVisible(true);
         start.addActionListener(new starts(timer));
@@ -48,9 +50,11 @@ public class TimePanel extends JPanel{
     public TimePanel() {
         timer = new SimTimer(this);
         Icon startIcon = new ImageIcon("play.png");
-        start = new JButton(startIcon);
+        Icon pauseIcon = new ImageIcon("pause.png");
+        start = new JToggleButton();
+        start.setIcon(startIcon);
+        start.setSelectedIcon(pauseIcon);
         started = false;
-
         Dimension size = start.getPreferredSize();
         start.setBounds(500, 180, size.width, size.height);
         start.setVisible(true);
@@ -102,10 +106,11 @@ public class TimePanel extends JPanel{
 }
 
 class starts implements ActionListener {
-    boolean started = false;
+    boolean started;
     SimTimer timer;
     public starts(SimTimer timer) {
         this.timer = timer;
+        started = false;
     }
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
@@ -113,7 +118,7 @@ class starts implements ActionListener {
             timer.startTimer();
             started = true;
             Icon pause = new ImageIcon("pause.png");
-            //actionEvent.getSource().setIcon(pause);
+            actionEvent.getSource();
         }
         else {
             timer.pause();
