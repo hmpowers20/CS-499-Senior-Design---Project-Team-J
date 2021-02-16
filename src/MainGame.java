@@ -18,9 +18,9 @@ public class MainGame
         JFrame window = Window.createWindow();  // create the window JFrame
         GridMap map = new GridMap(30, 30);
 
-        Icon icon1 = new ImageIcon("play.png");
-        Icon icon2 = new ImageIcon("save.png");
-        JButton saveButton = new JButton(icon2);
+        Icon play = new ImageIcon("play.png");
+        Icon save = new ImageIcon("save.png");
+        JButton saveButton = new JButton(save);
         saveButton.setVisible(true);
         TimePanel timer = new TimePanel();
         saveButton.addActionListener(new saveAll(timer));
