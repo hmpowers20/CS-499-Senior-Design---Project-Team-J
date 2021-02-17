@@ -12,7 +12,7 @@ public class TimePanel extends JPanel {
     JSlider slide;
     boolean started;
 
-    public TimePanel(long startTime) {
+    public TimePanel(long startTime, SimMap simMap) {
         timer = new SimTimer(startTime, this);
         started = false;
         Icon startIcon = new ImageIcon("play.png");
@@ -23,13 +23,13 @@ public class TimePanel extends JPanel {
         start.setSelectedIcon(pauseIcon);
         start.setBounds(500, 180, size.width, size.height);
         start.setVisible(true);
-        start.addActionListener(new starts(timer));
+        start.addActionListener(new starts(timer, simMap));
         slide = new JSlider(0,100, 1);
         slide.setMajorTickSpacing(20);
         slide.setMinorTickSpacing(10);
         slide.setPaintTicks(true);
         slide.setPaintLabels(true);
-        slide.addChangeListener(new speed(timer));
+        slide.addChangeListener(new speed(timer,simMap));
         long sec = startTime % 60;
         long min = startTime / 60;
         long hrs = min / 60;
@@ -47,7 +47,7 @@ public class TimePanel extends JPanel {
     }
 
 
-    public TimePanel() {
+    public TimePanel(SimMap simMap) {
         timer = new SimTimer(this);
         Icon startIcon = new ImageIcon("play.png");
         Icon pauseIcon = new ImageIcon("pause.png");
@@ -64,10 +64,10 @@ public class TimePanel extends JPanel {
         slide.setMinorTickSpacing(10);
         slide.setPaintTicks(true);
         slide.setPaintLabels(true);
-        slide.addChangeListener(new speed(timer));
+        slide.addChangeListener(new speed(timer, simMap));
 
 
-        start.addActionListener(new starts(timer));
+        start.addActionListener(new starts(timer, simMap));
         time = new JLabel("0 00:00:00");
         add(start);
         add(time);
@@ -109,28 +109,31 @@ public class TimePanel extends JPanel {
 class starts implements ActionListener {
     boolean started;
     SimTimer timer;
-    public starts(SimTimer timer) {
+    SimMap simMap;
+    public starts(SimTimer timer, SimMap simMap) {
         this.timer = timer;
         started = false;
+        this.simMap = simMap;
     }
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
         if (!started) {
             timer.startTimer();
-            started = true;
-            Icon pause = new ImageIcon("pause.png");
-            actionEvent.getSource();
+            simMap.start();
         }
         else {
             timer.pause();
+            simMap.pauseResume();
         }
     }
 }
 
 class speed implements ChangeListener {
      SimTimer timer;
-    public speed(SimTimer timer) {
+     SimMap simMap;
+    public speed(SimTimer timer, SimMap simMap) {
         this.timer = timer;
+        this.simMap = simMap;
     }
     @Override
     public void stateChanged(ChangeEvent changeEvent) {
@@ -138,6 +141,7 @@ class speed implements ChangeListener {
         if (!source.getValueIsAdjusting()) {
             int fps = (int)source.getValue();
                 timer.adjustSpeed(fps);
+                simMap.setSpeed(fps);
         }
     }
 }

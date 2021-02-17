@@ -17,13 +17,14 @@ public class MainGame
 
         JFrame window = Window.createWindow();  // create the window JFrame
         GridMap map = new GridMap(30, 30);
+        SimMap posMap = SimMap.getInstance(30);
 
         Icon play = new ImageIcon("play.png");
         Icon save = new ImageIcon("save.png");
         JButton saveButton = new JButton(save);
         saveButton.setVisible(true);
-        TimePanel timer = new TimePanel();
-        saveButton.addActionListener(new saveAll(timer));
+        TimePanel timer = new TimePanel(posMap);
+        saveButton.addActionListener(new saveAll(timer,posMap));
 
         window.add(map);
         window.add(timer);
@@ -35,9 +36,12 @@ public class MainGame
 class saveAll implements ActionListener {
     TimePanel timer;
     SaveSession save;
-    public saveAll(TimePanel timer) {
+    SimMap posMap;
+    public saveAll(TimePanel timer, SimMap posMap) {
         this.timer = timer;
         this.save = new SaveSession(timer);
+        this.posMap = posMap;
+        posMap.save(save);
     }
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
