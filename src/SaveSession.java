@@ -22,7 +22,7 @@ public class SaveSession {
             e.printStackTrace();
         }
         try {
-            saveFile.write(String.valueOf(time));
+            saveFile.write(String.valueOf(time)+"\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
