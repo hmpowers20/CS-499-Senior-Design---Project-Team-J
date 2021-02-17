@@ -1,13 +1,22 @@
 public class Plant {
-    int radius;
-    int number_of_seeds;
-    int size;
-    int growing_speed;
+    int x, y, rate, radius, maxSeeds, maxSeedDistance, viability;
     int energy;
-    int x;
-    int y;
-    public Plant() {
+    int simSpeed;
 
+    public Plant(int x, int y, int rate, int radius, int maxSeeds, int maxSeedDistance, int viability) {
+        this.x = x;
+        this.y = y;
+        this.rate = rate;
+        this.radius = radius;
+        this.maxSeeds = maxSeeds;
+        this.maxSeedDistance = maxSeedDistance;
+        this.viability = viability;
+        simSpeed = 1;
+    }
+
+    void spawn() {
+        //Do code here that generates a random number of seeds <= maxSeeds
+        //They appear at a distance <= maxSeedDistance
     }
 
     int getX() {
