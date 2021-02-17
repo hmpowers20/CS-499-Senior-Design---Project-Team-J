@@ -13,7 +13,7 @@ class SimMap {
     ArrayList<Predator> predatorList;
     ArrayList<Grazer> grazerList;
     ArrayList<Plant> plantList;
-    ArrayList<Seed> seedList;
+    ArrayList<Seed> seedList; //This is only here so that we can pause seed growth
 
     private SimMap(int size) {
         this.size = size;
@@ -74,7 +74,24 @@ class SimMap {
         int x = grazer.getX();
         int y = grazer.getY();
         Node thisNode = map[x][y];
+        thisNode.removeGrazer(grazer);
         grazerList.remove(grazer);
+    }
+
+    public void addSeed(Seed seed) {
+        seedList.add(seed);
+        int x = seed.getX();
+        int y = seed.getY();
+        Node thisNode = map[x][y];
+        thisNode.addSeed(seed);
+    }
+
+    public void removeSeed(Seed seed) {
+        seedList.remove(seed);
+        int x = seed.getX();
+        int y = seed.getY();
+        Node node = map[x][y];
+        node.removeSeed(seed);
     }
 
     public int eatPredator(Predator predator) {
