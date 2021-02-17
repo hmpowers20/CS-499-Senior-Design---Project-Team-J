@@ -8,12 +8,14 @@ public class Node {
     boolean hasPredator;
     boolean hasGrazer;
     boolean hasObstacle;
+    boolean hasSeed;
 
     public Node() {
         hasPlant = false;
         hasPredator = false;
         hasGrazer = false;
         hasObstacle = false;
+        hasSeed = false;
         predators = new ArrayList<Predator>();
         grazers = new ArrayList<Grazer>();
     }
@@ -64,6 +66,14 @@ public class Node {
         if (grazers.size() == 0) {
             hasGrazer = false;
         }
+    }
+
+    public void addSeed(Seed seed) {
+        hasSeed = true;
+    }
+
+    public void removeSeed(Seed seed) {
+        hasSeed = false;
     }
 
     public void removePlant() {
