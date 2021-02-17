@@ -4,12 +4,22 @@ public class Grazer {
     static int id;
     static SimMap map;
     int simSpeed;
-    int speed;
-    int energy;
-    public Grazer(int x, int y, int id, int speed) {
+    int energy; //Energy level
+    int energy_input; //Amount of energy gained per minute while eating (is that really the best way to do that? Seems odd to be but idk)
+    int energy_output; //How much energy a grazer uses moving 5 distance units
+    int reproduce; //Energy level to reproduce
+    int maintain; //How many minutes a grazer can maintain max speed
+    int speed; //Max speed
+
+    public Grazer(int x, int y, int id, int speed, int energy, int energy_input, int energy_output, int reproduce, int maintain) {
         this.x = x;
         this.y = y;
         this.id = id;
+        this.energy = energy;
+        this.energy_output = energy_output;
+        this.energy_input = energy_input;
+        this.reproduce = reproduce;
+        this.maintain = maintain;
         map = SimMap.getInstance();
         simSpeed = 1;
         this.speed = speed;
