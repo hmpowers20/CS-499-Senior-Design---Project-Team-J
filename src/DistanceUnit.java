@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 
-public class Node {
+public class DistanceUnit {
     ArrayList<Predator> predators;
     ArrayList<Grazer> grazers;
     Obstacle obstacle;
@@ -10,7 +10,7 @@ public class Node {
     boolean hasObstacle;
     boolean hasSeed;
 
-    public Node() {
+    public DistanceUnit() {
         hasPlant = false;
         hasPredator = false;
         hasGrazer = false;
