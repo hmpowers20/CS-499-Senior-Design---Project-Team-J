@@ -3,24 +3,26 @@ import java.util.ArrayList;
 
 class SimMap {
     private static SimMap single_instance = null;
-    Node[][] map;
+    DistanceUnit[][] map;
     int numPredators;
     int numGrazers;
     int numPlants;
     int speed;
     boolean active;
-    int size;
+    int width;
+    int height;
     ArrayList<Predator> predatorList;
     ArrayList<Grazer> grazerList;
     ArrayList<Plant> plantList;
     ArrayList<Seed> seedList; //This is only here so that we can pause seed growth
 
-    private SimMap(int size) {
-        this.size = size;
-        map = new Node[size][size];
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                map[i][j] = new Node();
+    private SimMap(int width, int height) {
+        this. width = width;
+        this.height = height;
+        map = new DistanceUnit[width][height];
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                map[i][j] = new DistanceUnit();
             }
         }
         speed = 1;
@@ -31,9 +33,9 @@ class SimMap {
         seedList = new ArrayList<Seed>();
     }
 
-    public static SimMap getInstance(int size) {
+    public static SimMap getInstance(int width, int height) {
         if (single_instance == null) {
-            single_instance = new SimMap(size);
+            single_instance = new SimMap(width, height);
         }
        return single_instance;
     }
@@ -41,7 +43,7 @@ class SimMap {
     public static SimMap getInstance() {
         if (single_instance == null) {
             //If this runs then something has gone very very wrong
-            single_instance = new SimMap(0);
+            single_instance = new SimMap(0,0);
         }
         return single_instance;
     }
@@ -49,32 +51,32 @@ class SimMap {
     public void addPredator(Predator predator) {
         int x = predator.getX();
         int y = predator.getY();
-        Node currentNode = map[x][y];
-        currentNode.addPredator(predator);
+        DistanceUnit currentDU = map[x][y];
+        currentDU.addPredator(predator);
         predatorList.add(predator);
     }
 
     public void addGrazer(Grazer grazer) {
         int x = grazer.getX();
         int y = grazer.getY();
-        Node currentNode = map[x][y];
-        currentNode.addGrazer(grazer);
+        DistanceUnit currentDU = map[x][y];
+        currentDU.addGrazer(grazer);
         grazerList.add(grazer);
     }
 
     public void removePredator(Predator predator) {
         int x = predator.getX();
         int y = predator.getY();
-        Node thisNode = map[x][y];
-        thisNode.removePredator(predator);
+        DistanceUnit thisDU = map[x][y];
+        thisDU.removePredator(predator);
         predatorList.remove(predator);
     }
 
     public void removeGrazer(Grazer grazer) {
         int x = grazer.getX();
         int y = grazer.getY();
-        Node thisNode = map[x][y];
-        thisNode.removeGrazer(grazer);
+        DistanceUnit thisDU = map[x][y];
+        thisDU.removeGrazer(grazer);
         grazerList.remove(grazer);
     }
 
@@ -82,16 +84,16 @@ class SimMap {
         seedList.add(seed);
         int x = seed.getX();
         int y = seed.getY();
-        Node thisNode = map[x][y];
-        thisNode.addSeed(seed);
+        DistanceUnit thisDU = map[x][y];
+        thisDU.addSeed(seed);
     }
 
     public void removeSeed(Seed seed) {
         seedList.remove(seed);
         int x = seed.getX();
         int y = seed.getY();
-        Node node = map[x][y];
-        node.removeSeed(seed);
+        DistanceUnit du = map[x][y];
+        du.removeSeed(seed);
     }
 
     public int eatPredator(Predator predator) {
@@ -109,9 +111,50 @@ class SimMap {
     public void addPlant(Plant plant) {
         int x = plant.getX();
         int y = plant.getY();
-        Node currentNode = map[x][y];
-        currentNode.addPlant(plant);
+        DistanceUnit currentDU = map[x][y];
+        currentDU.addPlant(plant);
         plantList.add(plant);
+    }
+
+    //Plug in two points and see if there is an obstacle between them
+    public boolean obstacleBetween(int x1, int y1, int x2, int y2) {
+        if (x1 == x2) {
+           if (y1 >= y2) {
+               for (int i = y2; i < y1; i++) {
+                   DistanceUnit du = map[x1][i];
+                   if (du.checkObstacle()) {
+                       return true;
+                   }
+               }
+           }
+           else {
+               for (int i = y1; i < y2; i++) {
+                   DistanceUnit du = map[x1][i];
+                   if (du.checkObstacle()) {
+                       return true;
+                   }
+               }
+           }
+        }
+        else {
+            if (x1 >= x2) {
+                for (int i = x2; i < x1; i++) {
+                    DistanceUnit du = map[i][y1];
+                    if (du.checkObstacle()) {
+                        return true;
+                    }
+                }
+            }
+            else {
+                for (int i = x1; i < x2; i++) {
+                    DistanceUnit du = map[i][y1];
+                    if (du.checkObstacle()) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     public Point findPlant(Grazer grazer) {
@@ -122,7 +165,7 @@ class SimMap {
         return destination;
     }
 
-    //Check to see whether there is a plant visible to a grazer before running findPlant() to avoid errors
+    //To avoid errors, use this to check to see whether there is a plant visible to a grazer before running findPlant()
     public boolean isPlantInRange(int x, int y) {
         int lowX;
         int lowY;
@@ -143,27 +186,28 @@ class SimMap {
             lowY = 0;
         }
 
-        if (x + 125 <= size) {
+        if (x + 125 <= width) {
             highX = x + 125;
         }
         else {
-            highX = size;
+            highX = width;
         }
 
-        if (y + 125 <= size) {
+        if (y + 125 <= height) {
             highY = y + 125;
         }
 
         else {
-            highY = size;
+            highY = height;
         }
 
         for(int i = lowX; i < highX; i++) {
             for (int j = lowY; j < highY; j++) {
-                Node node = map[i][j];
-                if (node.checkPlant()) {
-                    //Code to check whether there's an obstacle between the grazer and the plant
-                    return true;
+                DistanceUnit du = map[i][j];
+                if (du.checkPlant()) {
+                    if (!this.obstacleBetween(x,y,i,j)) {
+                        return true;
+                    }
                 }
             }
         }
