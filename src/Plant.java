@@ -15,8 +15,10 @@ public class Plant {
     }
 
     void spawn() {
+        Seed seed;
         //Do code here that generates a random number of seeds <= maxSeeds
         //They appear at a distance <= maxSeedDistance
+        seed = new Seed(x, y, rate, radius, maxSeeds, maxSeedDistance, viability);
     }
 
     int getX() {
