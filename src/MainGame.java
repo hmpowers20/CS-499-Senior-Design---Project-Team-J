@@ -1,8 +1,10 @@
 import javax.swing.*;
+import javax.xml.parsers.ParserConfigurationException;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.io.File;
 
 /**
  * Class which contains the main method
@@ -17,7 +19,13 @@ public class MainGame
 
         JFrame window = Window.createWindow();  // create the window JFrame
         GridMap map = new GridMap(30, 30);
-        SimMap posMap = SimMap.getInstance(30);
+        SimInitializer initializer = new SimInitializer();
+        try {
+            initializer.initialize();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        }
+        SimMap posMap = SimMap.getInstance();
 
         Icon play = new ImageIcon("play.png");
         Icon save = new ImageIcon("save.png");
