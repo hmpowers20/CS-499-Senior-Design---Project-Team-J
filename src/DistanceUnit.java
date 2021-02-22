@@ -9,6 +9,7 @@ public class DistanceUnit {
     boolean hasGrazer;
     boolean hasObstacle;
     boolean hasSeed;
+    Obstacle nodeObstacle;
 
     public DistanceUnit() {
         hasPlant = false;
@@ -31,6 +32,7 @@ public class DistanceUnit {
 
     public void addObstacle(Obstacle obstacle1) {
         hasObstacle = true;
+        this.nodeObstacle = obstacle;
     }
 
     public void addGrazer(Grazer grazer) {
