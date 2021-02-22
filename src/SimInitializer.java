@@ -8,6 +8,8 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.*;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Node;
 import java.nio.channels.SelectableChannel;
 
 public class SimInitializer {
@@ -21,7 +23,7 @@ public class SimInitializer {
         idNumber = 0;
     }
 
-    public void initialize() throws ParserConfigurationException, XPathExpressionException {
+    public void initialize() throws ParserConfigurationException, XPathExpressionException, IOException, SAXException {
 
         //JavatPoint code here we goooo
         inputFile = new File("LifeSimulation01.xml");
@@ -38,10 +40,14 @@ public class SimInitializer {
         doc.getDocumentElement().normalize();
 
         XPath xPath = XPathFactory.newInstance().newXPath();
+        FileInputStream fileIS = new FileInputStream(inputFile);
         Node node;
 
 
-        node = (Node) xPath.compile("/LAND_BOUNDS[1]").evaluate(doc, XPathConstants.NODESET);
+        String expression = "/LAND_BOUNDS";
+        Document xmlDocument = db.parse(fileIS);
+        NodeList nodeList = (NodeList) xPath.compile(expression).evaluate(xmlDocument, XPathConstants.NODESET);
+        node = nodeList.item(0);
         width = Integer.parseInt(node.getAttributes().getNamedItem("WIDTH").getNodeValue());
         height = Integer.parseInt(node.getAttributes().getNamedItem("HEIGHT").getNodeValue());
         simMap = SimMap.getInstance(width, height);
