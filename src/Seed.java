@@ -1,8 +1,9 @@
 public class Seed {
-    int x, y, rate, radius, maxSeeds, maxSeedDistance, viability;
+    int x, y, radius, maxSeeds, maxSeedDistance;
     int simSpeed;
     SimMap simMap;
-    public Seed(int x, int y, int rate, int radius, int maxSeeds, int maxSeedDistance, int viability) {
+    float rate, viability;
+    public Seed(int x, int y, float rate, int radius, int maxSeeds, int maxSeedDistance, float viability) {
         simSpeed = 1;
         this.x = x;
         this.y = y;
