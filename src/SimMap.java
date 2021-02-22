@@ -56,6 +56,13 @@ class SimMap {
         predatorList.add(predator);
     }
 
+    public void addObstacle(Obstacle obstacle) {
+        int x = obstacle.getX();
+        int y = obstacle.getY();
+        DistanceUnit du = map[x][y];
+        du.addObstacle(obstacle);
+    }
+
     public void addGrazer(Grazer grazer) {
         int x = grazer.getX();
         int y = grazer.getY();
