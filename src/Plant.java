@@ -1,9 +1,10 @@
 public class Plant {
-    int x, y, rate, radius, maxSeeds, maxSeedDistance, viability;
+    int x, y, radius, maxSeeds, maxSeedDistance;
     int energy;
     int simSpeed;
+    float viability, rate;
 
-    public Plant(int x, int y, int rate, int radius, int maxSeeds, int maxSeedDistance, int viability) {
+    public Plant(int x, int y, float rate, int radius, int maxSeeds, int maxSeedDistance, float viability) {
         this.x = x;
         this.y = y;
         this.rate = rate;
