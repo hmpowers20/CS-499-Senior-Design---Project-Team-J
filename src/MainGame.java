@@ -1,3 +1,5 @@
+import org.xml.sax.SAXException;
+
 import javax.swing.*;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
@@ -22,7 +24,11 @@ public class MainGame
         GridMap map = new GridMap(30, 30);
         SimInitializer initializer = new SimInitializer();
         try {
-            initializer.initialize();
+            try {
+                initializer.initialize();
+            } catch (SAXException e) {
+                e.printStackTrace();
+            }
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
         } catch (XPathExpressionException e) {
