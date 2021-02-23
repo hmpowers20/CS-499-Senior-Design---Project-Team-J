@@ -63,8 +63,6 @@ public class SimInitializer {
                 height = (int) conversion;
             }
         }
-        System.out.println(height);
-        System.out.println(width);
         SimMap simMap = SimMap.getInstance(width, height);
 
         nodeList = (NodeList) xPath.compile("/LIFE_SIMULATION/PLANTS").evaluate(doc, XPathConstants.NODESET);
@@ -115,11 +113,12 @@ public class SimInitializer {
                 }
                 Plant tempPlant = new Plant(x, y, growth_rate, diameter, seedcount, seed_distance, viability);
                 simMap.addPlant(tempPlant);
-
             }
         }
 
         nodeList = (NodeList) xPath.compile("/LIFE_SIMULATION/GRAZERS").evaluate(doc, XPathConstants.NODESET);
+        node = nodeList.item(0);
+        nodeList = node.getChildNodes();
         int energy_In = 0, energy_Out = 0, g_reproduce = 0;
         float maintain = 0, g_max = 0;
 
@@ -175,6 +174,8 @@ public class SimInitializer {
         }
 
         nodeList = (NodeList) xPath.compile("/LIFE_SIMULATION/PREDATORS").evaluate(doc, XPathConstants.NODESET);
+        node = nodeList.item(0);
+        nodeList = node.getChildNodes();
         float speed_hod = 0, speed_hed = 0, speed_hor = 0, p_maintain = 0, gestation = 0;
         int p_energy_out = 0, p_reproduce = 0, p_offspring = 0, e_offspring = 0;
         for (int i = 0; i < nodeList.getLength(); i++) {
@@ -228,11 +229,11 @@ public class SimInitializer {
                         x = Integer.parseInt(value.trim());
                     }
                     else if (subName == "Y_POS") {
-                        String value = tempNode.getTextContent();
+                        String value = thisNode.getTextContent();
                         y = Integer.parseInt(value.trim());
                     }
                     else if (subName == "P_ENERGY_LEVEL") {
-                        String value = tempNode.getTextContent();
+                        String value = thisNode.getTextContent();
                         p_energy = Integer.parseInt(value.trim());
                     }
                     else if (subName == "GENOTYPE") {
@@ -247,6 +248,8 @@ public class SimInitializer {
         }
 
         nodeList = (NodeList) xPath.compile("/LIFE_SIMULATION/OBSTACLES").evaluate(doc, XPathConstants.NODESET);
+        node = nodeList.item(0);
+        nodeList = node.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node tempNode = nodeList.item(i);
             String name = tempNode.getNodeName();
