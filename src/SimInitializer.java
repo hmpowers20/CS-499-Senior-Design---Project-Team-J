@@ -44,87 +44,238 @@ public class SimInitializer {
         Node node;
 
 
-        String expression = "/LAND_BOUNDS";
+        String expression = "/LIFE_SIMULATION/LAND_BOUNDS";
         Document xmlDocument = db.parse(fileIS);
-        NodeList nodeList = (NodeList) xPath.compile(expression).evaluate(xmlDocument, XPathConstants.NODESET);
+        NodeList nodeList = (NodeList) xPath.compile(expression).evaluate(doc, XPathConstants.NODESET);
         node = nodeList.item(0);
-        width = Integer.parseInt(node.getAttributes().getNamedItem("WIDTH").getNodeValue());
-        height = Integer.parseInt(node.getAttributes().getNamedItem("HEIGHT").getNodeValue());
-        simMap = SimMap.getInstance(width, height);
+        NodeList children = node.getChildNodes();
 
-        node = (Node) xPath.compile("/PLANTS[1]").evaluate(doc, XPathConstants.NODESET);
+        for (int i = 0; i < children.getLength(); i++) {
+            Node tempNode = children.item(i);
+            if (tempNode.getNodeName() == "WIDTH") {
+                String value = tempNode.getTextContent();
+                float conversion = Float.parseFloat(value);
+                width = (int) conversion;
+            }
+            else if (tempNode.getNodeName() == "HEIGHT") {
+                String value = tempNode.getTextContent();
+                float conversion = Float.parseFloat(value);
+                height = (int) conversion;
+            }
+        }
+        System.out.println(height);
+        System.out.println(width);
+        SimMap simMap = SimMap.getInstance(width, height);
 
-        float growth_rate = Float.parseFloat(node.getAttributes().getNamedItem("GROWTH_RATE").getNodeValue());
-        int max_size = Integer.parseInt(node.getAttributes().getNamedItem("MAX_SIZE").getNodeValue());
-        int seed_distance = Integer.parseInt(node.getAttributes().getNamedItem("MAX_SEED_CAST_DISTANCE").getNodeValue());
-        int seedcount = Integer.parseInt(node.getAttributes().getNamedItem("MAX_SEED_NUMBER").getNodeValue());
-        float viability = Float.parseFloat(node.getAttributes().getNamedItem("SEED_VIABILITY").getNodeValue());
+        nodeList = (NodeList) xPath.compile("/LIFE_SIMULATION/PLANTS").evaluate(doc, XPathConstants.NODESET);
+        node = nodeList.item(0);
 
-        NodeList plantList = (NodeList) xPath.compile("/PLANTS/PLANT").evaluate(doc, XPathConstants.NODESET);
+        children = node.getChildNodes();
+        float growth_rate = 0, viability = 0;
+        int max_size, seed_distance = 0, seedcount = 0, x = 0, y = 0, diameter = 0;
 
-        for (int i = 0; i < plantList.getLength(); i++) {
-            Node plantNode = plantList.item(i);
-            int x = Integer.parseInt(plantNode.getAttributes().getNamedItem("X_POS").getNodeValue());
-            int y = Integer.parseInt(plantNode.getAttributes().getNamedItem("Y_POS").getNodeValue());
-            int diameter = Integer.parseInt(plantNode.getAttributes().getNamedItem("P_DIAMETER").getNodeValue());
-            Plant tempPlant = new Plant(x, y, growth_rate, diameter, seedcount, seed_distance, viability);
-            simMap.addPlant(tempPlant);
+        for (int i = 0; i < children.getLength(); i++) {
+            Node tempNode = children.item(i);
+            String name = tempNode.getNodeName();
+            if (name == "GROWTH_RATE") {
+                growth_rate = Float.parseFloat(tempNode.getTextContent());
+            }
+            else if(name == "MAX_SIZE") {
+                //max_size = Integer.parseInt(tempNode.getTextContent());
+            }
+            else if (name == "MAX_SEED_CAST_DISTANCE") {
+                String value = tempNode.getTextContent();
+                seed_distance = Integer.parseInt(value.trim());
+            }
+            else if (name == "MAX_SEED_NUMBER") {
+                String value = tempNode.getTextContent();
+                seedcount = Integer.parseInt(value.trim());
+            }
+            else if (name == "SEED_VIABILITY") {
+                String value = tempNode.getTextContent();
+                viability = Float.parseFloat(value.trim());
+            }
+            else if (name == "PLANT") {
+                NodeList plantList = tempNode.getChildNodes();
+                for (int j = 0; j < plantList.getLength(); j++) {
+                    Node plantNode = plantList.item(j);
+                    String subName = plantNode.getNodeName();
+                    if (subName == "X_POS") {
+                        String value = plantNode.getTextContent();
+                        x = Integer.parseInt(value.trim());
+                    }
+                    else if (subName == "Y_POS") {
+                        String value = plantNode.getTextContent();
+                        y = Integer.parseInt(value.trim());
+                    }
+                    else if (subName == "P_DIAMETER") {
+                        String value = plantNode.getTextContent();
+                        diameter = Integer.parseInt(value.trim());
+                    }
+                }
+                Plant tempPlant = new Plant(x, y, growth_rate, diameter, seedcount, seed_distance, viability);
+                simMap.addPlant(tempPlant);
+
+            }
         }
 
-        node = (Node) xPath.compile("/GRAZERS[1]").evaluate(doc, XPathConstants.NODESET);
-        int energy_In = Integer.parseInt(node.getAttributes().getNamedItem("G_ENERGY_INPUT").getNodeValue());
-        int energy_Out = Integer.parseInt(node.getAttributes().getNamedItem("G_ENERGY_OUTPUT").getNodeValue());
-        int g_reproduce = Integer.parseInt(node.getAttributes().getNamedItem("G_ENERGY_TO_REPRODUCE").getNodeValue());
-        float maintain = Float.parseFloat(node.getAttributes().getNamedItem("G_MAINTAIN_SPEED").getNodeValue());
-        float g_max = Float.parseFloat(node.getAttributes().getNamedItem("G_MAX_SPEED").getNodeValue());
+        nodeList = (NodeList) xPath.compile("/LIFE_SIMULATION/GRAZERS").evaluate(doc, XPathConstants.NODESET);
+        int energy_In = 0, energy_Out = 0, g_reproduce = 0;
+        float maintain = 0, g_max = 0;
 
-        NodeList grazerList = (NodeList) xPath.compile("/GRAZERS/GRAZER").evaluate(doc, XPathConstants.NODESET);
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Node tempNode = nodeList.item(i);
+            String name = tempNode.getNodeName();
 
-        for (int i = 0; i < grazerList.getLength(); i++) {
-            Node grazerNode = grazerList.item(i);
-            int x = Integer.parseInt(grazerNode.getAttributes().getNamedItem("X_POS").getNodeValue());
-            int y = Integer.parseInt(grazerNode.getAttributes().getNamedItem("X_POS").getNodeValue());
-            int init_energy = Integer.parseInt(grazerNode.getAttributes().getNamedItem("G_ENERGY_LEVEL").getNodeValue());
-            Grazer tempGrazer = new Grazer(x, y, idNumber, g_max, init_energy, energy_In, energy_Out, g_reproduce, maintain);
-            simMap.addGrazer(tempGrazer);
-            idNumber++;
+            if (name == "G_ENERGY_INPUT") {
+                String value = tempNode.getTextContent();
+                energy_In = Integer.parseInt(value.trim());
+            }
+            else if (name == "G_ENERGY_OUTPUT") {
+                String value = tempNode.getTextContent();
+                energy_Out = Integer.parseInt(value.trim());
+            }
+            else if (name == "G_ENERGY_TO_REPRODUCE") {
+                String value = tempNode.getTextContent();
+                g_reproduce = Integer.parseInt(value.trim());
+            }
+            else if (name == "G_MAINTAIN_SPEED") {
+                String value = tempNode.getTextContent();
+                maintain = Float.parseFloat(value.trim());
+            }
+            else if (name == "G_MAX_SPEED") {
+                String value = tempNode.getTextContent();
+                g_max = Float.parseFloat(value.trim());
+            }
+            else if (name == "GRAZER") {
+                int init_energy = 0;
+                NodeList subList = tempNode.getChildNodes();
+                for (int j = 0; j < subList.getLength(); j++) {
+                    Node thisNode = subList.item(j);
+                    String subName = thisNode.getNodeName();
+
+                    if (subName == "X_POS") {
+                        String value = thisNode.getTextContent();
+                        x = Integer.parseInt(value.trim());
+                    }
+                    else if (subName == "Y_POS") {
+                        String value = thisNode.getTextContent();
+                        y = Integer.parseInt(value.trim());
+                    }
+                    else if (subName == "G_ENERGY_LEVEL") {
+                        String value = thisNode.getTextContent();
+                        init_energy = Integer.parseInt(value.trim());
+                    }
+
+                }
+                Grazer tempGrazer = new Grazer(x, y, idNumber, g_max, init_energy, energy_In, energy_Out, g_reproduce, maintain);
+                simMap.addGrazer(tempGrazer);
+                idNumber++;
+            }
         }
 
-        node = (Node) xPath.compile("/PREDATORS[1]").evaluate(doc, XPathConstants.NODESET);
-        float speed_hod = Float.parseFloat(node.getAttributes().getNamedItem("MAX_SPEED_HOD").getNodeValue());
-        float speed_hed = Float.parseFloat(node.getAttributes().getNamedItem("MAX_SPEED_HED").getNodeValue());
-        float speed_hor = Float.parseFloat(node.getAttributes().getNamedItem("MAX_SPEED_HOR").getNodeValue());
-        float p_maintain = Float.parseFloat(node.getAttributes().getNamedItem("P_MAINTAIN_SPEED").getNodeValue());
-        int p_energy_out = Integer.parseInt(node.getAttributes().getNamedItem("P_ENERGY_OUTPUT").getNodeValue());
-        int p_reproduce = Integer.parseInt(node.getAttributes().getNamedItem("P_ENERGY_TO_REPRODUCE").getNodeValue());
-        int p_offspring = Integer.parseInt(node.getAttributes().getNamedItem("P_MAX_OFFSPRING").getNodeValue());
-        float gestation = Float.parseFloat(node.getAttributes().getNamedItem("P_GESTATION").getNodeValue());
-        int e_offspring = Integer.parseInt(node.getAttributes().getNamedItem("P_OFFSPRING_ENERGY").getNodeValue());
+        nodeList = (NodeList) xPath.compile("/LIFE_SIMULATION/PREDATORS").evaluate(doc, XPathConstants.NODESET);
+        float speed_hod = 0, speed_hed = 0, speed_hor = 0, p_maintain = 0, gestation = 0;
+        int p_energy_out = 0, p_reproduce = 0, p_offspring = 0, e_offspring = 0;
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Node tempNode = nodeList.item(i);
+            String name = tempNode.getNodeName();
+            if (name == "MAX_SPEED_HOD") {
+                String value = tempNode.getTextContent();
+                speed_hod = Float.parseFloat(value.trim());
+            }
+            else if (name == "MAX_SPEED_HED") {
+                String value = tempNode.getTextContent();
+                speed_hed = Float.parseFloat(value.trim());
+            }
+            else if (name == "MAX_SPEED_HOR") {
+                String value = tempNode.getTextContent();
+                speed_hor = Float.parseFloat(value.trim());
+            }
+            else if (name == "P_MAINTAIN_SPEED") {
+                String value = tempNode.getTextContent();
+                p_maintain = Float.parseFloat(value.trim());
+            }
+            else if (name == "P_GESTATION") {
+                String value = tempNode.getTextContent();
+                gestation = Float.parseFloat(value.trim());
+            }
+            else if (name == "P_ENERGY_OUTPUT") {
+                String value = tempNode.getTextContent();
+                p_energy_out = Integer.parseInt(value.trim());
+            }
+            else if (name == "P_ENERGY_TO_REPRODUCE") {
+                String value = tempNode.getTextContent();
+                p_reproduce = Integer.parseInt(value.trim());
+            }
+            else if (name == "P_MAX_OFFSPRING") {
+                String value = tempNode.getTextContent();
+                p_offspring = Integer.parseInt(value.trim());
+            }
+            else if (name == "P_OFFSPRING_ENERGY") {
+                String value = tempNode.getTextContent();
+                e_offspring = Integer.parseInt(value.trim());
+            }
+            else if (name == "PREDATOR") {
+                int p_energy = 0;
+                String genotype = "";
+                NodeList subList = tempNode.getChildNodes();
+                for (int j = 0; j < subList.getLength(); j++) {
+                    Node thisNode = subList.item(j);
+                    String subName = thisNode.getNodeName();
+                    if (subName == "X_POS") {
+                        String value = thisNode.getTextContent();
+                        x = Integer.parseInt(value.trim());
+                    }
+                    else if (subName == "Y_POS") {
+                        String value = tempNode.getTextContent();
+                        y = Integer.parseInt(value.trim());
+                    }
+                    else if (subName == "P_ENERGY_LEVEL") {
+                        String value = tempNode.getTextContent();
+                        p_energy = Integer.parseInt(value.trim());
+                    }
+                    else if (subName == "GENOTYPE") {
+                        genotype = thisNode.getTextContent();
+                    }
+                }
+                Predator tempPredator = new Predator(x, y, idNumber, speed_hod, speed_hed, speed_hor, p_energy, p_energy_out, gestation, genotype, p_maintain, p_reproduce, p_offspring, e_offspring);
+                simMap.addPredator(tempPredator);
+                idNumber++;
+            }
 
-        NodeList predatorList = (NodeList) xPath.compile("/PREDATORS/PREDATOR").evaluate(doc, XPathConstants.NODESET);
-
-        for (int i = 0; i < predatorList.getLength(); i++) {
-            Node predatorNode = predatorList.item(i);
-            int x = Integer.parseInt(predatorNode.getAttributes().getNamedItem("X_POS").getNodeValue());
-            int y = Integer.parseInt(predatorNode.getAttributes().getNamedItem("Y_POS").getNodeValue());
-            int p_energy = Integer.parseInt(predatorNode.getAttributes().getNamedItem("P_ENERGY_LEVEL").getNodeValue());
-            String genotype = predatorNode.getAttributes().getNamedItem("GENOTYPE").getNodeValue();
-
-            Predator tempPredator = new Predator(x, y, idNumber, speed_hod, speed_hed, speed_hor, p_energy, p_energy_out, gestation, genotype, p_maintain, p_reproduce, p_offspring, e_offspring);
-            simMap.addPredator(tempPredator);
-            idNumber++;
         }
 
-        NodeList obstacleList = (NodeList) xPath.compile("/OBSTACLES/OBSTACLE").evaluate(doc, XPathConstants.NODESET);
-
-        for (int i = 0; i < obstacleList.getLength(); i++) {
-            Node obstacleNode = obstacleList.item(i);
-            int x = Integer.parseInt(obstacleNode.getAttributes().getNamedItem("X_POS").getNodeValue());
-            int y = Integer.parseInt(obstacleNode.getAttributes().getNamedItem("Y_POS").getNodeValue());
-            int diameter = Integer.parseInt(obstacleNode.getAttributes().getNamedItem("O_DIAMETER").getNodeValue());
-            int height = Integer.parseInt(obstacleNode.getAttributes().getNamedItem("O_HEIGHT").getNodeValue());
-            Obstacle tempObstacle = new Obstacle(x, y, diameter, height);
-            simMap.addObstacle(tempObstacle);
+        nodeList = (NodeList) xPath.compile("/LIFE_SIMULATION/OBSTACLES").evaluate(doc, XPathConstants.NODESET);
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Node tempNode = nodeList.item(i);
+            String name = tempNode.getNodeName();
+            if (name == "OBSTACLE") {
+                int o_diameter = 0, o_height = 0;
+                NodeList obstacleList = tempNode.getChildNodes();
+                for (int j = 0; j < obstacleList.getLength(); j++) {
+                    Node obstNode = obstacleList.item(j);
+                    String value = obstNode.getNodeName();
+                    if (value == "X_POS") {
+                        String rwhitespace = obstNode.getTextContent();//Wow way to use a consistent name scheme Wren
+                        x = Integer.parseInt(rwhitespace.trim());
+                    }
+                    else if (value == "Y_POS") {
+                        String rwhitespace = obstNode.getTextContent();
+                        y = Integer.parseInt(rwhitespace.trim());
+                    }
+                    else if ( value =="O_DIAMETER") {
+                        String rwhitespace = obstNode.getTextContent();
+                        o_diameter = Integer.parseInt(rwhitespace.trim());
+                    }
+                    else if (value == "O_HEIGHT") {
+                        String rwhitespace = obstNode.getTextContent();
+                        o_height = Integer.parseInt(rwhitespace.trim());
+                    }
+                }
+                Obstacle tempObstacle = new Obstacle(x, y, o_diameter, o_height);
+                simMap.addObstacle(tempObstacle);
+            }
         }
     }
 }
