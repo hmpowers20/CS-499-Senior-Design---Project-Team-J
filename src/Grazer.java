@@ -8,10 +8,10 @@ public class Grazer {
     int energy_input; //Amount of energy gained per minute while eating (is that really the best way to do that? Seems odd to be but idk)
     int energy_output; //How much energy a grazer uses moving 5 distance units
     int reproduce; //Energy level to reproduce
-    int maintain; //How many minutes a grazer can maintain max speed
-    int speed; //Max speed
+    float maintain; //How many minutes a grazer can maintain max speed
+    float speed; //Max speed
 
-    public Grazer(int x, int y, int id, int speed, int energy, int energy_input, int energy_output, int reproduce, int maintain) {
+    public Grazer(int x, int y, int id, float speed, int energy, int energy_input, int energy_output, int reproduce, float maintain) {
         this.x = x;
         this.y = y;
         this.id = id;
