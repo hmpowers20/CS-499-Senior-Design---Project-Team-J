@@ -25,9 +25,18 @@ public class MainGame
         TimePanel timer = new TimePanel();
         saveButton.addActionListener(new saveAll(timer));
 
+        JButton reportButton = new JButton("REPORT");
+        //reportButton.addActionListener(this);
+        reportButton.setVisible(true);
+
+        JLabel reportLabel = new JLabel("Test: ");
+        reportLabel.setVisible(true);
+
         window.add(map);
         window.add(timer);
         window.add(saveButton);
+        window.add(reportButton);
+        window.add(reportLabel);
         window.pack();
     }
 }
@@ -44,3 +53,4 @@ class saveAll implements ActionListener {
         save.saveTimer();
     }
 }
+
