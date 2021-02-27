@@ -232,6 +232,22 @@ class SimMap {
         active = true;
     }
 
+    public int getNumGrazers() {
+        numGrazers = grazerList.size();
+        return numGrazers;
+    }
+
+    public int getNumPredators() {
+        numPredators = predatorList.size();
+        return numPredators;
+    }
+
+    public int getNumPlants() {
+        numPlants = plantList.size();
+        return numPlants;
+    }
+
+
     //Pause simulation it's running and vice versa, couldn't think of a less confusing name
     public void pauseResume() {
         if (active) {
