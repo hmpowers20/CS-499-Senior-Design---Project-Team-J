@@ -7,14 +7,21 @@ import java.util.Scanner;
 public class GridMap extends JComponent {
     int rows;
     int columns;
+    int tileSize = 32;
+    int zoomFactor = 1;
 
     Tile tiles[][];
+    ImageIcon tileSprites[];
+    ImageIcon lifeFormSprites[];
+    ImageIcon scaledTileSprites[];
+    ImageIcon scaledLifeformSprites[];
+
+    JScrollPane scrollPane;
 
     GridMap(int R, int C) throws FileNotFoundException {
         rows = R;
         columns = C;
-        int tileSize = 32;
-        setPreferredSize(new Dimension(R * tileSize + 1, C * tileSize + 1));
+        setPreferredSize(new Dimension(columns * tileSize / zoomFactor + 1, rows * tileSize / zoomFactor + 1));
 
         // Initialize tiles
         tiles = new Tile[rows][columns];
@@ -54,8 +61,9 @@ public class GridMap extends JComponent {
         ImageIcon plant2 = new ImageIcon(new ImageIcon("images/plant2.png").getImage().getScaledInstance(tileSize, tileSize, Image.SCALE_SMOOTH));
         ImageIcon plant3 = new ImageIcon(new ImageIcon("images/plant3.png").getImage().getScaledInstance(tileSize, tileSize, Image.SCALE_SMOOTH));
 
+        lifeFormSprites = new ImageIcon[] { grazer, AApredator, FFpredator, SSpredator, OtherPredator, grazerOffspring, log, boulder, pileOfRocks, otherPredatorOffspring, plant1, plant2, plant3 };
+        scaledLifeformSprites = lifeFormSprites;
 
-        ImageIcon lifeFormSprites[] = { grazer, AApredator, FFpredator, SSpredator, OtherPredator, grazerOffspring, log, boulder, pileOfRocks, otherPredatorOffspring, plant1, plant2, plant3 };
         tiles[13][14].occupier = new Actor();
         tiles[13][14].occupier.spriteType = 1;
 
@@ -95,36 +103,13 @@ public class GridMap extends JComponent {
         tiles[14][12].occupier = new Actor();
         tiles[14][12].occupier.spriteType = 12;
 
-        for (int i = 0; i < rows; i++)
-        {
-            for (int j = 0; j < columns; j++)
-            {
-                if (tiles[i][j].occupier != null && tiles[i][j].occupier.spriteType >= 0) {
-                    JLabel actor = new JLabel();
-                    actor.setIcon(lifeFormSprites[tiles[i][j].occupier.spriteType]);
-                    actor.setBounds(j * tileSize, i * tileSize, tileSize, tileSize);
-                    add(actor);
-                }
-            }
-        }
-
         // Add tiles
         ImageIcon grassTileImage = new ImageIcon(new ImageIcon("images/grass.png").getImage().getScaledInstance(tileSize, tileSize,  Image.SCALE_SMOOTH));
         ImageIcon dirtTileImage = new ImageIcon(new ImageIcon("images/dirt.png").getImage().getScaledInstance(tileSize, tileSize,  Image.SCALE_SMOOTH));
         ImageIcon sandTileImage = new ImageIcon(new ImageIcon("images/sand.png").getImage().getScaledInstance(tileSize, tileSize,  Image.SCALE_SMOOTH));
 
-        ImageIcon tileSprites[] = { grassTileImage, dirtTileImage, sandTileImage };
-
-        for (int i = 0; i < rows; i++)
-        {
-            for (int j = 0; j < columns; j++)
-            {
-                JLabel tile = new JLabel();
-                tile.setIcon(tileSprites[tiles[i][j].spriteType]);
-                tile.setBounds(j * tileSize, i * tileSize, tileSize, tileSize);
-                add(tile);
-            }
-        }
+        tileSprites = new ImageIcon[] { grassTileImage, dirtTileImage, sandTileImage };
+        scaledTileSprites = tileSprites;
     }
 
     public void paint(Graphics g) {
@@ -135,14 +120,71 @@ public class GridMap extends JComponent {
 
         g.setColor(Color.BLACK);
 
-        int rowHeight = height / rows;
-        for (int i = 0; i <= rows; i++){
+        int rowHeight = tileSize / zoomFactor;
+        for (int i = 0; i <= rows; i++) {
             g.drawLine(0, i * rowHeight, width, i * rowHeight);
         }
 
-        int rowWidth = width / columns;
-        for (int i = 0; i <= columns; i++){
+        int rowWidth = tileSize / zoomFactor;
+        for (int i = 0; i <= columns; i++) {
             g.drawLine(i * rowWidth, 0, i * rowWidth, height);
+        }
+    }
+
+    void zoom(int zoomFactor)
+    {
+        setPreferredSize(new Dimension(columns * tileSize / zoomFactor + 1, rows * tileSize / zoomFactor + 1));
+        this.zoomFactor = zoomFactor;
+
+        for (int i = 0; i < tileSprites.length; i++)
+        {
+            scaledTileSprites[i] = new ImageIcon(tileSprites[i].getImage().getScaledInstance(tileSize / zoomFactor, tileSize / zoomFactor, Image.SCALE_SMOOTH));
+        }
+
+        for (int i = 0; i < lifeFormSprites.length; i++)
+        {
+            scaledLifeformSprites[i] = new ImageIcon(lifeFormSprites[i].getImage().getScaledInstance(tileSize / zoomFactor, tileSize / zoomFactor, Image.SCALE_SMOOTH));
+        }
+
+        paintTiles();
+        repaint();
+        revalidate();
+    }
+
+    void paintTiles()
+    {
+        removeAll();
+
+        Rectangle viewRect = scrollPane.getViewport().getViewRect();
+
+        int startCol = (int)Math.floor((double)viewRect.x / (tileSize / zoomFactor));
+        int startRow = (int)Math.floor((double)viewRect.y / (tileSize / zoomFactor));
+        int endCol = (int)Math.ceil((double)(viewRect.x + viewRect.width) / (tileSize / zoomFactor));
+        int endRow = (int)Math.ceil((double)(viewRect.y + viewRect.height) / (tileSize / zoomFactor));
+
+        for (int i = startRow; i < endRow && i < rows; i++)
+        {
+            for (int j = startCol; j < endCol && j < columns; j++)
+            {
+                if (tiles[i][j].occupier != null && tiles[i][j].occupier.spriteType >= 0) {
+                    JLabel actor = new JLabel();
+                    actor.setIcon(scaledLifeformSprites[tiles[i][j].occupier.spriteType]);
+                    actor.setBounds(j * (tileSize / zoomFactor), i * (tileSize / zoomFactor), (tileSize / zoomFactor), (tileSize / zoomFactor));
+                    actor.setVisible(false);
+                    add(actor);
+                }
+            }
+        }
+
+        for (int i = startRow; i < endRow && i < rows; i++)
+        {
+            for (int j = startCol; j < endCol && j < columns; j++)
+            {
+                JLabel tile = new JLabel();
+                tile.setIcon(scaledTileSprites[tiles[i][j].spriteType]);
+                tile.setBounds(j * (tileSize / zoomFactor), i * (tileSize / zoomFactor), (tileSize / zoomFactor), (tileSize / zoomFactor));
+                add(tile);
+            }
         }
     }
 }

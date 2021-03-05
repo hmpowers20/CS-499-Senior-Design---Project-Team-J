@@ -1,11 +1,15 @@
 //import javafx.util.StringConverter;
 import org.xml.sax.SAXException;
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.Dictionary;
@@ -19,14 +23,16 @@ import java.util.Hashtable;
 public class MainGame extends JComponent
 {
     static final int ZOOM_MIN = 0;
-    static final int ZOOM_MAX = 5;
+    static final int ZOOM_MAX = 3;
     static final int ZOOM_INIT = ZOOM_MAX;
+
+    GridMap map = null;
+    JSlider zoomSlider = null;
 
     public MainGame() throws IOException {
 
         JPanel guiPanel = new JPanel(); //create the panel to contain all of the components
         guiPanel.setLayout(new BorderLayout()); //create border layout to organize components
-        GridMap map = null;
 
         //***************************Start Map Display******************************************************************
         JPanel simPanel = new JPanel();
@@ -53,6 +59,19 @@ public class MainGame extends JComponent
         guiScrollPane.setPreferredSize(new Dimension(600, 500));
 
         guiPanel.add(guiScrollPane, BorderLayout.CENTER);
+        map.scrollPane = guiScrollPane;
+        guiScrollPane.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+            @Override
+            public void adjustmentValueChanged(AdjustmentEvent e) {
+                map.paintTiles();
+            }
+        });
+        guiScrollPane.getHorizontalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+            @Override
+            public void adjustmentValueChanged(AdjustmentEvent e) {
+                map.paintTiles();
+            }
+        });
 
         //************************End Map GUI Display*******************************************************************
 
@@ -98,7 +117,7 @@ public class MainGame extends JComponent
         Font font = new Font("Serif", Font.BOLD, 15);
         zoomLabel.setFont(font);
 
-        JSlider zoomSlider = new JSlider(JSlider.VERTICAL, ZOOM_MIN, ZOOM_MAX, ZOOM_INIT);
+        zoomSlider = new JSlider(JSlider.VERTICAL, ZOOM_MIN, ZOOM_MAX, ZOOM_INIT);
 
         Hashtable<Integer, JLabel> labels = new Hashtable<>();
         for (int i = ZOOM_MIN; i <= ZOOM_MAX; i++)
@@ -111,6 +130,12 @@ public class MainGame extends JComponent
         zoomSlider.setMinorTickSpacing(0);
         zoomSlider.setPaintTicks(true);
         zoomSlider.setPaintLabels(true);
+        zoomSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                map.zoom((int)Math.pow(2, ZOOM_MAX - zoomSlider.getValue()));
+            }
+        });
 
         zoomPanel.add(zoomSlider);
         zoomPanel.add(zoomLabel);
