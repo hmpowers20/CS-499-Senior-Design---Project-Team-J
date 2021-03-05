@@ -1,4 +1,4 @@
-import javafx.util.StringConverter;
+//import javafx.util.StringConverter;
 import org.xml.sax.SAXException;
 import javax.swing.*;
 import javax.xml.parsers.ParserConfigurationException;
@@ -26,15 +26,15 @@ public class MainGame extends JComponent
 
         JPanel guiPanel = new JPanel(); //create the panel to contain all of the components
         guiPanel.setLayout(new BorderLayout()); //create border layout to organize components
+        GridMap map = null;
 
         //***************************Start Map Display******************************************************************
         JPanel simPanel = new JPanel();
 
-        GridMap map = new GridMap(30, 30);
         SimInitializer initializer = new SimInitializer();
         try {
             try {
-                initializer.initialize();
+                map = initializer.initialize();
             } catch (SAXException e) {
                 e.printStackTrace();
             }
