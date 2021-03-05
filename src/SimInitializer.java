@@ -23,7 +23,7 @@ public class SimInitializer {
         idNumber = 0;
     }
 
-    public void initialize() throws ParserConfigurationException, XPathExpressionException, IOException, SAXException {
+    public GridMap initialize() throws ParserConfigurationException, XPathExpressionException, IOException, SAXException {
 
         //JavatPoint code here we goooo
         inputFile = new File("LifeSimulation01.xml");
@@ -64,6 +64,7 @@ public class SimInitializer {
             }
         }
         SimMap simMap = SimMap.getInstance(width, height);
+        GridMap map = new GridMap(width, height);
 
         nodeList = (NodeList) xPath.compile("/LIFE_SIMULATION/PLANTS").evaluate(doc, XPathConstants.NODESET);
         node = nodeList.item(0);
@@ -280,5 +281,6 @@ public class SimInitializer {
                 simMap.addObstacle(tempObstacle);
             }
         }
+        return map;
     }
 }
