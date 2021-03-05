@@ -1,26 +1,35 @@
+import javafx.util.StringConverter;
 import org.xml.sax.SAXException;
-
 import javax.swing.*;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
-import java.awt.Dimension;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.io.File;
+import java.nio.ByteOrder;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Hashtable;
+
 
 /**
  * Class which contains the main method
  */
-public class MainGame
+public class MainGame extends JComponent
 {
-    /**
-     * @param args Command line arguments
-     * @throws IOException Thrown if there is a problem with input.
-     */
-    public static void main (String[] args) throws IOException, InterruptedException {
+    static final int ZOOM_MIN = 0;
+    static final int ZOOM_MAX = 5;
+    static final int ZOOM_INIT = ZOOM_MAX;
 
-        JFrame window = Window.createWindow();  // create the window JFrame
+    public MainGame() throws IOException {
+
+        JPanel guiPanel = new JPanel(); //create the panel to contain all of the components
+        guiPanel.setLayout(new BorderLayout()); //create border layout to organize components
+
+        //***************************Start Map Display******************************************************************
+        JPanel simPanel = new JPanel();
+
         GridMap map = new GridMap(30, 30);
         SimInitializer initializer = new SimInitializer();
         try {
@@ -36,6 +45,21 @@ public class MainGame
         }
         SimMap posMap = SimMap.getInstance();
 
+        simPanel.add(map);
+
+        JScrollPane guiScrollPane = new JScrollPane(simPanel);
+        guiScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        guiScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        guiScrollPane.setPreferredSize(new Dimension(600, 500));
+
+        guiPanel.add(guiScrollPane, BorderLayout.CENTER);
+
+        //************************End Map GUI Display*******************************************************************
+
+        //**********************Start Button Display********************************************************************
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout());
+
         Icon play = new ImageIcon("play.png");
         Icon save = new ImageIcon("save.png");
         JButton saveButton = new JButton(save);
@@ -43,19 +67,58 @@ public class MainGame
         TimePanel timer = new TimePanel(posMap);
         saveButton.addActionListener(new saveAll(timer,posMap));
 
+        buttonPanel.add(timer);
+        buttonPanel.add(saveButton);
+        guiPanel.add(buttonPanel, BorderLayout.PAGE_END);
+        //**********************************End Button Display**********************************************************
+
+        //*********************************Report Button Display********************************************************
+        JPanel reportPanel = new JPanel();
+        reportPanel.setLayout(new BoxLayout(reportPanel, BoxLayout.PAGE_AXIS));
+        reportPanel.setPreferredSize(new Dimension(150, 500));
+
         JButton reportButton = new JButton("REPORT");
         //reportButton.addActionListener(this);
         reportButton.setVisible(true);
 
-        JLabel reportLabel = new JLabel("Test: ");
+        JLabel reportLabel = new JLabel("<html>The button above generates a text file detailing the statistics of the virtual world to aid in creating a stable world.</html>");
         reportLabel.setVisible(true);
 
-        window.add(map);
-        window.add(timer);
-        window.add(saveButton);
-        window.add(reportButton);
-        window.add(reportLabel);
-        window.pack();
+        reportPanel.add(reportButton);
+        reportPanel.add(reportLabel);
+        guiPanel.add(reportPanel, BorderLayout.WEST);
+        //**********************************End Report Button Display***************************************************
+
+        //**********************************Zoom Panel Display**********************************************************
+        JPanel zoomPanel = new JPanel();
+        zoomPanel.setLayout(new BoxLayout(zoomPanel, BoxLayout.PAGE_AXIS));
+        zoomPanel.setPreferredSize(new Dimension(150, 500));
+
+        JLabel zoomLabel = new JLabel("ZOOM IN/OUT");
+        Font font = new Font("Serif", Font.BOLD, 15);
+        zoomLabel.setFont(font);
+
+        JSlider zoomSlider = new JSlider(JSlider.VERTICAL, ZOOM_MIN, ZOOM_MAX, ZOOM_INIT);
+
+        Hashtable<Integer, JLabel> labels = new Hashtable<>();
+        for (int i = ZOOM_MIN; i <= ZOOM_MAX; i++)
+        {
+            labels.put(i, new JLabel(
+                    (ZOOM_MAX - i != 0 ? "1 / " : "") + Integer.toString((int)Math.pow(2, ZOOM_MAX - i)) + "x"));
+        }
+        zoomSlider.setLabelTable(labels);
+        zoomSlider.setMajorTickSpacing(1);
+        zoomSlider.setMinorTickSpacing(0);
+        zoomSlider.setPaintTicks(true);
+        zoomSlider.setPaintLabels(true);
+
+        zoomPanel.add(zoomSlider);
+        zoomPanel.add(zoomLabel);
+        guiPanel.add(zoomPanel, BorderLayout.EAST);
+        //**********************************End Zoom Panel Display******************************************************
+
+        add(guiPanel);
+        setLayout(new FlowLayout()); // DO NOT REMOVE!!!! NECESSARY
     }
 }
 
