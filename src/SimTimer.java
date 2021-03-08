@@ -9,6 +9,8 @@ public class SimTimer {
     long relTime;
     boolean running;
     int speed;
+    private static SimTimer timerInstance = null;
+    String timestamp;
     TimePanel tPanel;
 
     public SimTimer(TimePanel tPanel) {
@@ -17,6 +19,20 @@ public class SimTimer {
         running = true;
         speed = 1;
         relTime = 0;
+    }
+
+    public static SimTimer getInstance(TimePanel tPanel) {
+        if (timerInstance == null) {
+            timerInstance = new SimTimer(tPanel);
+        }
+        return timerInstance;
+    }
+
+    public static SimTimer getInstance() {
+        if (timerInstance == null) {
+            //Something has gone very wrong if this runs
+        }
+        return timerInstance;
     }
 
     public SimTimer(long resumeTime, TimePanel tPanel) {
@@ -49,6 +65,32 @@ public class SimTimer {
                             total = total - int_min * 60;
                             int_sec = total;
 
+                            String strHours;
+                            String strMins;
+                            String strSecs;
+
+                            if (int_hrs < 10) {
+                                strHours = "0"+int_hrs;
+                            }
+                            else {
+                                strHours = String.valueOf(int_hrs);
+                            }
+                            if (int_min < 10) {
+                                strMins = "0"+int_min;
+                            }
+                            else {
+                                strMins = String.valueOf(int_min);
+                            }
+
+                            if (int_sec < 10) {
+                                strSecs = "0"+int_sec;
+                            }
+                            else {
+                                strSecs = String.valueOf(int_sec);
+                            }
+
+                            timestamp = strHours+":"+strMins+":"+strSecs;
+
                             if (running) {
                                 tPanel.update(int_sec, int_min, int_hrs, int_day);
                             }
@@ -74,6 +116,11 @@ public class SimTimer {
         });
         thread.start();
     }
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
     public void pause() {
         if (this.running) {
             this.running = false;
