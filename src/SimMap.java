@@ -164,15 +164,52 @@ class SimMap {
         return false;
     }
 
-    public Point findPlant(Grazer grazer) {
-        Point destination = new Point();
+    public Plant getNearestPlant(Grazer grazer) {
         int x = grazer.getX();
         int y = grazer.getY();
+        Plant min_Plant = null;
+        int min_dis = 200;
 
-        return destination;
+        for (Plant plant : plantList) {
+            int px = plant.getX();
+            int py = plant.getY();
+            boolean inRange = false;
+            int diff_x = 0, diff_y = 0;
+            if (px > x) {
+                diff_x = px - x;
+                if (diff_x <= 125) {
+                    inRange = true;
+                }
+            }
+            else {
+                diff_x = x - px;
+                if (diff_x <= 125) {
+                    inRange = true;
+                }
+            }
+            if (py > y) {
+                diff_y = py - y;
+                if (diff_y > 125) {
+                    inRange = false;
+                }
+            }
+            else {
+                diff_y = y - py;
+                if (diff_y > 125) {
+                    inRange = false;
+                }
+            }
+            int total_dis = diff_x + diff_y;
+            if (total_dis < min_dis && !obstacleBetween(x,y,px,py) && inRange) {
+                min_dis = total_dis;
+                min_Plant = plant;
+            }
+        }
+
+        return min_Plant;
     }
 
-    //To avoid errors, use this to check to see whether there is a plant visible to a grazer before running findPlant()
+    //To avoid errors, use this to check to see whether there is a plant visible to a grazer before running getNearestPlant()
     public boolean isPlantInRange(int x, int y) {
         int lowX;
         int lowY;
@@ -219,6 +256,44 @@ class SimMap {
             }
         }
         return false;
+    }
+
+    boolean checkObstacle(int x, int y) {
+        DistanceUnit check = map[x][y];
+        if (check.checkObstacle()) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    public Grazer getNearestGrazer(int x, int y) {
+        Grazer nearest = null;
+        int min_distance;
+        boolean smell = false;
+        for (Grazer grazer : grazerList) {
+            int gx = grazer.getX();
+            int gy = grazer.getY();
+            int diff_x = 0, diff_y = 0;
+            if (gx > x) {
+                diff_x = gx - x;
+            }
+            else {
+                diff_x = x - gx;
+            }
+            if (gy > y) {
+                diff_y = gy - y;
+            }
+            else {
+                diff_y = y - gy;
+            }
+            //First, we find out whether there's a grazer with 25 DU, obstacle or no
+            if (diff_x <= 25 && diff_y <= 25) {
+
+            }
+        }
+        return nearest;
     }
 
     public void setSpeed(int speed) {
