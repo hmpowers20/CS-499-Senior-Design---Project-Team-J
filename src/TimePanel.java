@@ -29,7 +29,6 @@ public class TimePanel extends JPanel {
         slide.setMinorTickSpacing(10);
         slide.setPaintTicks(true);
         slide.setPaintLabels(true);
-        slide.addChangeListener(new speed(timer,simMap));
         long sec = startTime % 60;
         long min = startTime / 60;
         long hrs = min / 60;
@@ -41,6 +40,11 @@ public class TimePanel extends JPanel {
         String strDays = Long.toString(days);
 
         time = new JLabel(strDays+" "+strHrs+":"+strMin+":"+strSec);
+
+        JButton reset = new JButton("Reset");
+        JLabel timeLabel = new JLabel("Speed: 1");
+        slide.addChangeListener(new speed(timer, simMap, timeLabel));
+        reset.addActionListener(new resetTime(slide, timeLabel));
 
         add(time);
         add(start);
@@ -64,14 +68,19 @@ public class TimePanel extends JPanel {
         slide.setMinorTickSpacing(10);
         slide.setPaintTicks(true);
         slide.setPaintLabels(true);
-        slide.addChangeListener(new speed(timer, simMap));
 
 
         start.addActionListener(new starts(timer, simMap));
         time = new JLabel("0 00:00:00");
+        JButton reset = new JButton("Reset");
+        JLabel timeLabel = new JLabel("Speed: 1");
+        slide.addChangeListener(new speed(timer, simMap, timeLabel));
+        reset.addActionListener(new resetTime(slide, timeLabel));
         add(start);
         add(time);
         add(slide);
+        add(reset);
+        add(timeLabel);
 }
 
     public void update(int sec, int min, int hrs, int days) {
@@ -131,9 +140,11 @@ class starts implements ActionListener {
 class speed implements ChangeListener {
      SimTimer timer;
      SimMap simMap;
-    public speed(SimTimer timer, SimMap simMap) {
+     JLabel timeLabel;
+    public speed(SimTimer timer, SimMap simMap, JLabel timeLabel) {
         this.timer = timer;
         this.simMap = simMap;
+        this.timeLabel = timeLabel;
     }
     @Override
     public void stateChanged(ChangeEvent changeEvent) {
@@ -142,6 +153,22 @@ class speed implements ChangeListener {
             int fps = (int)source.getValue();
                 timer.adjustSpeed(fps);
                 simMap.setSpeed(fps);
+                timeLabel.setText("Speed: "+fps);
         }
+    }
+}
+
+class resetTime implements ActionListener {
+    JSlider slider;
+    JLabel timeLabel;
+    public resetTime(JSlider slider, JLabel timeLabel) {
+        this.slider = slider;
+        this.timeLabel = timeLabel;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        slider.setValue(1);
+        timeLabel.setText("Speed: 1");
     }
 }
