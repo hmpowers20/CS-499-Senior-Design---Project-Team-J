@@ -1,7 +1,7 @@
 import java.awt.*;
 import java.util.ArrayList;
 
-class SimMap {
+class   SimMap {
     private static SimMap single_instance = null;
     DistanceUnit[][] map;
     int numPredators;
