@@ -123,6 +123,13 @@ class SimMap {
         plantList.add(plant);
     }
 
+    //Idk a better approach than to calculate distance based on a floor of the hypotenuse between the two points
+    private int findDistance(int x, int y) {
+        int square = x * x + y * y;
+        int dis = (int) Math.sqrt(square);
+        return dis;
+    }
+
     //Plug in two points and see if there is an obstacle between them
     public boolean obstacleBetween(int x1, int y1, int x2, int y2) {
         if (x1 == x2) {
@@ -199,7 +206,7 @@ class SimMap {
                     inRange = false;
                 }
             }
-            int total_dis = diff_x + diff_y;
+            int total_dis = findDistance(diff_x, diff_y);
             if (total_dis < min_dis && !obstacleBetween(x,y,px,py) && inRange) {
                 min_dis = total_dis;
                 min_Plant = plant;
@@ -258,6 +265,49 @@ class SimMap {
         return false;
     }
 
+    public Predator getNearestPredator(Predator hunter) {
+        Predator nearest = null;
+        int min_distance = 200;
+        boolean smell = false;
+        int x = hunter.getX();
+        int y = hunter.getY();
+        for (Predator predator : predatorList) {
+            if (predator != hunter) { //Make sure a predator does not eat itself
+                int px = predator.getX();
+                int py = predator.getY();
+                int diff_x = 0, diff_y = 0;
+                if (px > x) {
+                    diff_x = px - x;
+                } else {
+                    diff_x = x - px;
+                }
+                if (py > y) {
+                    diff_y = py - y;
+                } else {
+                    diff_y = y - py;
+                }
+                int distance = findDistance(diff_x, diff_y);
+                if (distance < min_distance) {
+
+                    if (distance <= 25) {
+                        if (!obstacleBetween(x, y, px, py)) {
+                            predator.inDanger(hunter);//Grazers behind obstacles can't see incoming predators
+                        }
+                        min_distance = distance;
+                        nearest = predator;
+                        smell = true;
+                    } else if (distance <= 125 && !obstacleBetween(x, y, px, py)) {
+                        predator.inDanger(hunter);
+                        min_distance = distance;
+                        nearest = predator;
+                    }
+                }
+            }
+
+        }
+        return nearest;
+    }
+
     boolean checkObstacle(int x, int y) {
         DistanceUnit check = map[x][y];
         if (check.checkObstacle()) {
@@ -270,7 +320,7 @@ class SimMap {
 
     public Grazer getNearestGrazer(int x, int y) {
         Grazer nearest = null;
-        int min_distance;
+        int min_distance = 200;
         boolean smell = false;
         for (Grazer grazer : grazerList) {
             int gx = grazer.getX();
@@ -288,10 +338,24 @@ class SimMap {
             else {
                 diff_y = y - gy;
             }
-            //First, we find out whether there's a grazer with 25 DU, obstacle or no
-            if (diff_x <= 25 && diff_y <= 25) {
+            int distance = findDistance(diff_x, diff_y);
+            if (distance < min_distance) {
 
+                if (distance <= 25) {
+                    if (!obstacleBetween(x,y,gx,gy)) {
+                        grazer.inDanger(x, y);//Grazers behind obstacles can't see incoming predators
+                    }
+                    min_distance = distance;
+                    nearest = grazer;
+                    smell = true;
+                }
+                else if (distance <= 125 && !obstacleBetween(x,y,gx,gy)) {
+                    grazer.inDanger(x,y);
+                    min_distance = distance;
+                    nearest = grazer;
+                }
             }
+
         }
         return nearest;
     }
