@@ -66,6 +66,10 @@ public class Predator {
 
     }
 
+    public void inDanger(Predator hunter) {
+
+    }
+
     public void resume() {
 
     }
