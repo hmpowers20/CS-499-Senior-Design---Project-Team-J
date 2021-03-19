@@ -4,57 +4,23 @@ import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.time.Duration;
+
 public class TimePanel extends JPanel {
 
     JToggleButton start;
-    SimTimer timer;
     JLabel time;
     JSlider slide;
-    boolean started;
 
-    public TimePanel(long startTime, SimMap simMap) {
-        timer = new SimTimer(startTime, this);
-        started = false;
-        Icon startIcon = new ImageIcon("play.png");
-        Icon pauseIcon = new ImageIcon("pause.png");
-        Dimension size = start.getPreferredSize();
-        start = new JToggleButton();
-        start.setIcon(startIcon);
-        start.setSelectedIcon(pauseIcon);
-        start.setBounds(500, 180, size.width, size.height);
-        start.setVisible(true);
-        start.addActionListener(new starts(timer, simMap));
-        slide = new JSlider(0,100, 1);
-        slide.setMajorTickSpacing(20);
-        slide.setMinorTickSpacing(10);
-        slide.setPaintTicks(true);
-        slide.setPaintLabels(true);
-        slide.addChangeListener(new speed(timer,simMap));
-        long sec = startTime % 60;
-        long min = startTime / 60;
-        long hrs = min / 60;
-        long days = hrs / 24;
-
-        String strSec = Long.toString(sec);
-        String strMin = Long.toString(min);
-        String strHrs = Long.toString(hrs);
-        String strDays = Long.toString(days);
-
-        time = new JLabel(strDays+" "+strHrs+":"+strMin+":"+strSec);
-
-        add(time);
-        add(start);
-    }
-
-
-    public TimePanel(SimMap simMap) {
-        timer = new SimTimer(this);
+    public TimePanel(MainGameModel model) {
         Icon startIcon = new ImageIcon("play.png");
         Icon pauseIcon = new ImageIcon("pause.png");
         start = new JToggleButton();
         start.setIcon(startIcon);
         start.setSelectedIcon(pauseIcon);
-        started = false;
+        start.setSelected(model.active);
         Dimension size = start.getPreferredSize();
         start.setBounds(500, 180, size.width, size.height);
         start.setVisible(true);
@@ -64,84 +30,57 @@ public class TimePanel extends JPanel {
         slide.setMinorTickSpacing(10);
         slide.setPaintTicks(true);
         slide.setPaintLabels(true);
-        slide.addChangeListener(new speed(timer, simMap));
+        slide.addChangeListener(e -> {
+            JSlider source = (JSlider)e.getSource();
+            if (!source.getValueIsAdjusting()) {
+                int fps = source.getValue();
+                model.speed = fps;
+            }
+        });
 
+        start.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED)
+            {
+                model.active = true;
+            }
+            else if (e.getStateChange() == ItemEvent.DESELECTED)
+            {
+                model.active = false;
+            }
+        });
 
-        start.addActionListener(new starts(timer, simMap));
         time = new JLabel("0 00:00:00");
         add(start);
         add(time);
         add(slide);
 }
 
-    public void update(int sec, int min, int hrs, int days) {
+    public void Update(MainGameModel model) {
+        Duration duration = model.GetTimeElapsed();
         String strDays, strHrs, strMin, strSec;
-        if (sec < 10) {
-            strSec = "0"+Integer.toString(sec);
+        if (duration.toSecondsPart() < 10) {
+            strSec = "0" + duration.toSecondsPart();
         }
         else {
-            strSec = Integer.toString(sec);
+            strSec = Long.toString(duration.toSecondsPart());
         }
 
-        if (min < 10) {
-            strMin = "0"+Integer.toString(min);
+        if (duration.toMinutesPart() < 10) {
+            strMin = "0" + duration.toMinutesPart();
         }
         else {
-            strMin = Integer.toString(min);
-        }
-        if (hrs < 10) {
-            strHrs = "0"+Integer.toString(hrs);
-        }
-        else {
-            strHrs = Integer.toString(hrs);
+            strMin = Integer.toString(duration.toMinutesPart());
         }
 
-        strDays = Integer.toString(days);
+        if (duration.toHoursPart() < 10) {
+            strHrs = "0" + duration.toHoursPart();
+        }
+        else {
+            strHrs = Integer.toString(duration.toHoursPart());
+        }
+
+        strDays = Long.toString(duration.toDaysPart());
 
         time.setText(strDays+" "+strHrs+":"+strMin+":"+strSec);
-    }
-    public long getTime() {
-        return timer.getTime();
-    }
-
-}
-
-class starts implements ActionListener {
-    boolean started;
-    SimTimer timer;
-    SimMap simMap;
-    public starts(SimTimer timer, SimMap simMap) {
-        this.timer = timer;
-        started = false;
-        this.simMap = simMap;
-    }
-    @Override
-    public void actionPerformed(ActionEvent actionEvent) {
-        if (!started) {
-            timer.startTimer();
-            simMap.start();
-        }
-        else {
-            timer.pause();
-            simMap.pauseResume();
-        }
-    }
-}
-
-class speed implements ChangeListener {
-     SimTimer timer;
-     SimMap simMap;
-    public speed(SimTimer timer, SimMap simMap) {
-        this.timer = timer;
-        this.simMap = simMap;
-    }
-    @Override
-    public void stateChanged(ChangeEvent changeEvent) {
-        JSlider source = (JSlider)changeEvent.getSource();
-        if (!source.getValueIsAdjusting()) {
-            int fps = (int)source.getValue();
-                timer.adjustSpeed(fps);
-                simMap.setSpeed(fps);
-        }
     }
 }

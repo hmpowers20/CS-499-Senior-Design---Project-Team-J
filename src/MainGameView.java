@@ -1,35 +1,29 @@
-//import javafx.util.StringConverter;
-import org.xml.sax.SAXException;
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
-import java.io.IOException;
-import java.nio.ByteOrder;
-import java.util.Dictionary;
-import java.util.HashMap;
+import java.io.FileNotFoundException;
 import java.util.Hashtable;
 
 
 /**
  * Class which contains the main method
  */
-public class MainGame extends JComponent
+public class MainGameView extends JComponent
 {
     static final int ZOOM_MIN = 0;
     static final int ZOOM_MAX = 3;
     static final int ZOOM_INIT = ZOOM_MAX;
 
-    GridMap map = null;
-    JSlider zoomSlider = null;
+    GridMap map;
+    JSlider zoomSlider;
+    TimePanel timer;
 
-    public MainGame() throws IOException {
+    public MainGameView(MainGameModel model) {
+        JFrame window = new JFrame("Life Simulator");   // create the window JFrame
+        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  // ensure that the window closes completely when exited
+
+        window.setResizable(false);     // Resizable is set to false so the user is prevented from changing the size of the JFrame.
+        window.setLayout(new FlowLayout());
+        window.setVisible(true);
 
         JPanel guiPanel = new JPanel(); //create the panel to contain all of the components
         guiPanel.setLayout(new BorderLayout()); //create border layout to organize components
@@ -37,41 +31,22 @@ public class MainGame extends JComponent
         //***************************Start Map Display******************************************************************
         JPanel simPanel = new JPanel();
 
-        SimInitializer initializer = new SimInitializer();
         try {
-            try {
-                map = initializer.initialize();
-            } catch (SAXException e) {
-                e.printStackTrace();
-            }
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (XPathExpressionException e) {
+            map = new GridMap(model);
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        SimMap posMap = SimMap.getInstance();
-
         simPanel.add(map);
 
         JScrollPane guiScrollPane = new JScrollPane(simPanel);
         guiScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        guiScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        guiScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         guiScrollPane.setPreferredSize(new Dimension(600, 500));
 
         guiPanel.add(guiScrollPane, BorderLayout.CENTER);
         map.scrollPane = guiScrollPane;
-        guiScrollPane.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
-            @Override
-            public void adjustmentValueChanged(AdjustmentEvent e) {
-                map.paintTiles();
-            }
-        });
-        guiScrollPane.getHorizontalScrollBar().addAdjustmentListener(new AdjustmentListener() {
-            @Override
-            public void adjustmentValueChanged(AdjustmentEvent e) {
-                map.paintTiles();
-            }
-        });
+        guiScrollPane.getVerticalScrollBar().addAdjustmentListener(e -> map.PaintTiles(model));
+        guiScrollPane.getHorizontalScrollBar().addAdjustmentListener(e -> map.PaintTiles(model));
 
         //************************End Map GUI Display*******************************************************************
 
@@ -79,12 +54,11 @@ public class MainGame extends JComponent
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout());
 
-        Icon play = new ImageIcon("play.png");
         Icon save = new ImageIcon("save.png");
         JButton saveButton = new JButton(save);
         saveButton.setVisible(true);
-        TimePanel timer = new TimePanel(posMap);
-        saveButton.addActionListener(new saveAll(timer,posMap));
+        timer = new TimePanel(model);
+        saveButton.addActionListener(e -> SaveSession.Save(model));
 
         buttonPanel.add(timer);
         buttonPanel.add(saveButton);
@@ -97,7 +71,6 @@ public class MainGame extends JComponent
         reportPanel.setPreferredSize(new Dimension(150, 500));
 
         JButton reportButton = new JButton("REPORT");
-        //reportButton.addActionListener(this);
         reportButton.setVisible(true);
 
         JLabel reportLabel = new JLabel("<html>The button above generates a text file detailing the statistics of the virtual world to aid in creating a stable world.</html>");
@@ -125,17 +98,13 @@ public class MainGame extends JComponent
             labels.put(i, new JLabel(
                     (ZOOM_MAX - i != 0 ? "1 / " : "") + Integer.toString((int)Math.pow(2, ZOOM_MAX - i)) + "x"));
         }
+
         zoomSlider.setLabelTable(labels);
         zoomSlider.setMajorTickSpacing(1);
         zoomSlider.setMinorTickSpacing(0);
         zoomSlider.setPaintTicks(true);
         zoomSlider.setPaintLabels(true);
-        zoomSlider.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                map.zoom((int)Math.pow(2, ZOOM_MAX - zoomSlider.getValue()));
-            }
-        });
+        zoomSlider.addChangeListener(e -> map.Zoom((int)Math.pow(2, ZOOM_MAX - zoomSlider.getValue()), model));
 
         zoomPanel.add(zoomSlider);
         zoomPanel.add(zoomLabel);
@@ -144,22 +113,14 @@ public class MainGame extends JComponent
 
         add(guiPanel);
         setLayout(new FlowLayout()); // DO NOT REMOVE!!!! NECESSARY
+
+        window.add(this); //add MainGame to the window
+        window.pack(); //pack the window
+    }
+
+    public void Update(MainGameModel model)
+    {
+        map.PaintTiles(model);
+        timer.Update(model);
     }
 }
-
-class saveAll implements ActionListener {
-    TimePanel timer;
-    SaveSession save;
-    SimMap posMap;
-    public saveAll(TimePanel timer, SimMap posMap) {
-        this.timer = timer;
-        this.save = new SaveSession(timer);
-        this.posMap = posMap;
-        posMap.save(save);
-    }
-    @Override
-    public void actionPerformed(ActionEvent actionEvent) {
-        save.saveTimer();
-    }
-}
-

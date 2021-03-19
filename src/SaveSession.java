@@ -3,19 +3,21 @@ import java.io.File;
 import java.io.FileWriter;
 
 public class SaveSession {
-    TimePanel timer;
-    FileWriter saveFile;
-    public SaveSession(TimePanel timer) {
-        this.timer = timer;
+
+    public static void Save(MainGameModel model)
+    {
+        FileWriter saveFile = null;
         try {
             saveFile = new FileWriter("backup.txt");
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        saveTimer(saveFile, model);
     }
 
-    public void saveTimer() {
-        long time = timer.getTime();
+    public static void saveTimer(FileWriter saveFile, MainGameModel model) {
+        long time = model.numSeconds;
         try {
             saveFile.write(":)\n");
         } catch (IOException e) {

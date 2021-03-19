@@ -1,3 +1,5 @@
-public class Actor {
-    public int spriteType = -1;
+public abstract class Actor {
+    int energy;
+
+    public abstract void Update(MainGameModel model);
 }

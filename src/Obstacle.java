@@ -1,25 +1,20 @@
-public class Obstacle {
-    int x, y, h, d;
-    public Obstacle(int x, int y, int d, int h) {
-        this.x = x;
-        this.y = y;
-        this.d = d;
-        this.h = h; //Why do these have height; I do not understand
+public class Obstacle extends Actor  {
+    int height, diameter;
+    public Obstacle(int diameter, int height) {
+        this.diameter = diameter;
+        this.height = height; //Why do these have height; I do not understand
     }
 
-    int getX() {
-        return x;
+    @Override
+    public void Update(MainGameModel model) {
+
     }
 
-    int getY() {
-        return y;
+    int getHeight() {
+        return height;
     }
 
-    int getH() {
-        return h;
-    }
-
-    int getD() {
-        return d;
+    int getDiameter() {
+        return diameter;
     }
 }

@@ -1,44 +1,28 @@
-public class Plant {
-    int x, y, radius, maxSeeds, maxSeedDistance;
-    int energy;
-    int simSpeed;
+public class Plant extends Actor  {
+    int radius, maxSeeds, maxSeedDistance;
     float viability, rate;
 
-    public Plant(int x, int y, float rate, int radius, int maxSeeds, int maxSeedDistance, float viability) {
-        this.x = x;
-        this.y = y;
+    public Plant(float rate, int radius, int maxSeeds, int maxSeedDistance, float viability) {
         this.rate = rate;
         this.radius = radius;
         this.maxSeeds = maxSeeds;
         this.maxSeedDistance = maxSeedDistance;
         this.viability = viability;
-        simSpeed = 1;
+    }
+
+    @Override
+    public void Update(MainGameModel model) {
+
     }
 
     void spawn() {
         Seed seed;
         //Do code here that generates a random number of seeds <= maxSeeds
         //They appear at a distance <= maxSeedDistance
-        seed = new Seed(x, y, rate, radius, maxSeeds, maxSeedDistance, viability);
-    }
-
-    int getX() {
-        return x;
-    }
-
-    int getY() {
-        return y;
+        seed = new Seed(rate, radius, maxSeeds, maxSeedDistance, viability);
     }
 
     int getEnergy() {
         return energy;
-    }
-
-    public void pause() {
-
-    }
-
-    public void resume() {
-
     }
 }

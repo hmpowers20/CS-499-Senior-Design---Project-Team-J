@@ -1,34 +1,226 @@
-import java.io.File;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-import java.io.*;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Node;
-import java.nio.channels.SelectableChannel;
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+import java.time.Duration;
 
-public class SimInitializer {
-    int idNumber;
-    File inputFile;
-    int width;
-    int height;
-    SimMap simMap;
+class MainGameModel {
+    public Tile[][] map;
+    public int speed = 1;
+    public boolean active = true;
+    public int numSeconds;
 
-    public SimInitializer() {
-        idNumber = 0;
+    MainGameModel() {
+        initialize();
     }
 
-    public GridMap initialize() throws ParserConfigurationException, XPathExpressionException, IOException, SAXException {
+    public Duration GetTimeElapsed()
+    {
+        return Duration.ofSeconds(numSeconds);
+    }
+
+    public Point FindTileWithActor(Actor actor)
+    {
+        for (int i = 0; i < map.length; i++)
+        {
+            for (int j = 0; j < map[i].length; j++)
+            {
+                if (map[i][j].occupier == actor)
+                {
+                    return new Point(i, j);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public void addActor(Actor actor, int x, int y) {
+        map[x][y].occupier = actor;
+    }
+
+    public void removeActor(Actor actor) {
+        Point coordinates = FindTileWithActor(actor);
+        map[coordinates.x][coordinates.y].occupier = null;
+    }
+
+    //Plug in two points and see if there is an obstacle between them
+    public boolean obstacleBetween(int x1, int y1, int x2, int y2) {
+        if (x1 == x2) {
+           if (y1 >= y2) {
+               for (int i = y2; i < y1; i++) {
+                   if (map[x1][i].occupier instanceof Obstacle) {
+                       return true;
+                   }
+               }
+           }
+           else {
+               for (int i = y1; i < y2; i++) {
+                   if (map[x1][i].occupier instanceof Obstacle) {
+                       return true;
+                   }
+               }
+           }
+        }
+        else {
+            if (x1 >= x2) {
+                for (int i = x2; i < x1; i++) {
+                    if (map[i][y1].occupier instanceof Obstacle) {
+                        return true;
+                    }
+                }
+            }
+            else {
+                for (int i = x1; i < x2; i++) {
+                    if (map[i][y1].occupier instanceof Obstacle) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public Point findPlant(Grazer grazer) {
+        Point destination = new Point();
+        Point coordinates = FindTileWithActor(grazer);
+
+        return destination;
+    }
+
+    //To avoid errors, use this to check to see whether there is a plant visible to a grazer before running findPlant()
+    public boolean isPlantInRange(int x, int y) {
+        int lowX;
+        int lowY;
+        int highX;
+        int highY;
+
+        if (x - 125 >= 0) {
+            lowX = x - 125;
+        }
+        else {
+            lowX = 0;
+        }
+
+        if (y - 125 >= 0) {
+            lowY = y - 125;
+        }
+        else {
+            lowY = 0;
+        }
+
+        if (x + 125 <= map.length) {
+            highX = x + 125;
+        }
+        else {
+            highX = map.length;
+        }
+
+        if (y + 125 <= map[0].length) {
+            highY = y + 125;
+        }
+
+        else {
+            highY = map[0].length;
+        }
+
+        for(int i = lowX; i < highX; i++) {
+            for (int j = lowY; j < highY; j++) {
+                if (map[i][j].occupier instanceof Plant) {
+                    if (!this.obstacleBetween(x,y,i,j)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public void setSpeed(int speed) {
+        this.speed = speed;
+    }
+    public void save(SaveSession save) {
+
+    }
+
+    public void start() {
+        active = true;
+    }
+
+    public int getNumGrazers() {
+        int numGrazers = 0;
+
+        for (int i = 0; i < map.length; i++)
+        {
+            for (int j = 0; j < map[i].length; j++)
+            {
+                if (map[i][j].occupier instanceof Grazer)
+                {
+                    numGrazers++;
+                }
+            }
+        }
+
+        return numGrazers;
+    }
+
+    public int getNumPredators() {
+        int numPredators = 0;
+
+        for (int i = 0; i < map.length; i++)
+        {
+            for (int j = 0; j < map[i].length; j++)
+            {
+                if (map[i][j].occupier instanceof Predator)
+                {
+                    numPredators++;
+                }
+            }
+        }
+
+        return numPredators;
+    }
+
+    public int getNumPlants() {
+        int numPlants = 0;
+
+        for (int i = 0; i < map.length; i++)
+        {
+            for (int j = 0; j < map[i].length; j++)
+            {
+                if (map[i][j].occupier instanceof Plant)
+                {
+                    numPlants++;
+                }
+            }
+        }
+
+        return numPlants;
+    }
+
+    public void initialize() {
 
         //JavatPoint code here we goooo
-        inputFile = new File("LifeSimulation01.xml");
+        File inputFile = new File("LifeSimulation01.xml");
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        DocumentBuilder db = dbf.newDocumentBuilder();
+        DocumentBuilder db = null;
+        try {
+            db = dbf.newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        }
+
         Document doc = null;
         try {
             doc = db.parse(inputFile);
@@ -40,15 +232,19 @@ public class SimInitializer {
         doc.getDocumentElement().normalize();
 
         XPath xPath = XPathFactory.newInstance().newXPath();
-        FileInputStream fileIS = new FileInputStream(inputFile);
         Node node;
 
-
         String expression = "/LIFE_SIMULATION/LAND_BOUNDS";
-        Document xmlDocument = db.parse(fileIS);
-        NodeList nodeList = (NodeList) xPath.compile(expression).evaluate(doc, XPathConstants.NODESET);
+        NodeList nodeList = null;
+        try {
+            nodeList = (NodeList) xPath.compile(expression).evaluate(doc, XPathConstants.NODESET);
+        } catch (XPathExpressionException e) {
+            e.printStackTrace();
+        }
         node = nodeList.item(0);
         NodeList children = node.getChildNodes();
+
+        int width = 0, height = 0;
 
         for (int i = 0; i < children.getLength(); i++) {
             Node tempNode = children.item(i);
@@ -63,10 +259,21 @@ public class SimInitializer {
                 height = (int) conversion;
             }
         }
-        SimMap simMap = SimMap.getInstance(width, height);
-        GridMap map = new GridMap(width, height);
 
-        nodeList = (NodeList) xPath.compile("/LIFE_SIMULATION/PLANTS").evaluate(doc, XPathConstants.NODESET);
+        map = new Tile[width][height];
+        for (int i = 0; i < map.length; i++)
+        {
+            for (int j = 0; j < map[0].length; j++)
+            {
+                map[i][j] = new Tile();
+            }
+        }
+
+        try {
+            nodeList = (NodeList) xPath.compile("/LIFE_SIMULATION/PLANTS").evaluate(doc, XPathConstants.NODESET);
+        } catch (XPathExpressionException e) {
+            e.printStackTrace();
+        }
         node = nodeList.item(0);
 
         children = node.getChildNodes();
@@ -112,12 +319,16 @@ public class SimInitializer {
                         diameter = Integer.parseInt(value.trim());
                     }
                 }
-                Plant tempPlant = new Plant(x, y, growth_rate, diameter, seedcount, seed_distance, viability);
-                simMap.addPlant(tempPlant);
+                Plant tempPlant = new Plant(growth_rate, diameter, seedcount, seed_distance, viability);
+                map[x][y].occupier = tempPlant;
             }
         }
 
-        nodeList = (NodeList) xPath.compile("/LIFE_SIMULATION/GRAZERS").evaluate(doc, XPathConstants.NODESET);
+        try {
+            nodeList = (NodeList) xPath.compile("/LIFE_SIMULATION/GRAZERS").evaluate(doc, XPathConstants.NODESET);
+        } catch (XPathExpressionException e) {
+            e.printStackTrace();
+        }
         node = nodeList.item(0);
         nodeList = node.getChildNodes();
         int energy_In = 0, energy_Out = 0, g_reproduce = 0;
@@ -168,13 +379,16 @@ public class SimInitializer {
                     }
 
                 }
-                Grazer tempGrazer = new Grazer(x, y, idNumber, g_max, init_energy, energy_In, energy_Out, g_reproduce, maintain);
-                simMap.addGrazer(tempGrazer);
-                idNumber++;
+                Grazer tempGrazer = new Grazer(g_max, init_energy, energy_In, energy_Out, g_reproduce, maintain);
+                map[x][y].occupier = tempGrazer;
             }
         }
 
-        nodeList = (NodeList) xPath.compile("/LIFE_SIMULATION/PREDATORS").evaluate(doc, XPathConstants.NODESET);
+        try {
+            nodeList = (NodeList) xPath.compile("/LIFE_SIMULATION/PREDATORS").evaluate(doc, XPathConstants.NODESET);
+        } catch (XPathExpressionException e) {
+            e.printStackTrace();
+        }
         node = nodeList.item(0);
         nodeList = node.getChildNodes();
         float speed_hod = 0, speed_hed = 0, speed_hor = 0, p_maintain = 0, gestation = 0;
@@ -241,14 +455,16 @@ public class SimInitializer {
                         genotype = thisNode.getTextContent();
                     }
                 }
-                Predator tempPredator = new Predator(x, y, idNumber, speed_hod, speed_hed, speed_hor, p_energy, p_energy_out, gestation, genotype, p_maintain, p_reproduce, p_offspring, e_offspring);
-                simMap.addPredator(tempPredator);
-                idNumber++;
+                Predator tempPredator = new Predator(speed_hod, speed_hed, speed_hor, p_energy, p_energy_out, gestation, genotype, p_maintain, p_reproduce, p_offspring, e_offspring);
+                map[x][y].occupier = tempPredator;
             }
-
         }
 
-        nodeList = (NodeList) xPath.compile("/LIFE_SIMULATION/OBSTACLES").evaluate(doc, XPathConstants.NODESET);
+        try {
+            nodeList = (NodeList) xPath.compile("/LIFE_SIMULATION/OBSTACLES").evaluate(doc, XPathConstants.NODESET);
+        } catch (XPathExpressionException e) {
+            e.printStackTrace();
+        }
         node = nodeList.item(0);
         nodeList = node.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
@@ -277,10 +493,18 @@ public class SimInitializer {
                         o_height = Integer.parseInt(rwhitespace.trim());
                     }
                 }
-                Obstacle tempObstacle = new Obstacle(x, y, o_diameter, o_height);
-                simMap.addObstacle(tempObstacle);
+                Obstacle tempObstacle = new Obstacle(o_diameter, o_height);
+                map[x][y].occupier = tempObstacle;
+                //May need to expand here so that obstacle can take multiple tiles (depending on implementation)
             }
         }
-        return map;
+    }
+
+    public int getMapHeight() {
+        return map.length;
+    }
+
+    public int getMapWidth() {
+        return map[0].length;
     }
 }
