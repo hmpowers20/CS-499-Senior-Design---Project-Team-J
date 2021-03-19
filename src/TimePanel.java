@@ -34,7 +34,15 @@ public class TimePanel extends JPanel {
             JSlider source = (JSlider)e.getSource();
             if (!source.getValueIsAdjusting()) {
                 int fps = source.getValue();
-                model.speed = fps;
+                if (fps > 0) {
+                    if (!model.active) {
+                        model.active = true;
+                    }
+                    model.speed = fps;
+                }
+                else {
+                    model.active = false;
+                }
             }
         });
 
