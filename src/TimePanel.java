@@ -13,6 +13,8 @@ public class TimePanel extends JPanel {
     JToggleButton start;
     JLabel time;
     JSlider slide;
+    JButton resetSpeed;
+    JLabel speed;
 
     public TimePanel(MainGameModel model) {
         Icon startIcon = new ImageIcon("play.png");
@@ -25,6 +27,15 @@ public class TimePanel extends JPanel {
         start.setBounds(500, 180, size.width, size.height);
         start.setVisible(true);
 
+        speed = new JLabel("Speed: 1");
+        resetSpeed = new JButton("Reset Speed");
+        resetSpeed.addActionListener(e -> {
+            model.speed = 1;
+            speed.setText("Speed: 1");
+            slide.setValue(1);
+        });
+
+
         slide = new JSlider(0,100, 1);
         slide.setMajorTickSpacing(20);
         slide.setMinorTickSpacing(10);
@@ -34,6 +45,7 @@ public class TimePanel extends JPanel {
             JSlider source = (JSlider)e.getSource();
             if (!source.getValueIsAdjusting()) {
                 int fps = source.getValue();
+                speed.setText("Speed: "+fps);
                 if (fps > 0) {
                     if (!model.active) {
                         model.active = true;
@@ -61,6 +73,8 @@ public class TimePanel extends JPanel {
         add(start);
         add(time);
         add(slide);
+        add(resetSpeed);
+        add(speed);
 }
 
     public void Update(MainGameModel model) {
