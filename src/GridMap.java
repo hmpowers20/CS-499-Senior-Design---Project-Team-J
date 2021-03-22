@@ -5,11 +5,11 @@ import javax.swing.*;
 import java.util.Scanner;
 
 public class GridMap extends JComponent {
-    int tileSize = 32;
-    int zoomFactor = 1;
+    private int tileSize = 32;
+    private int zoomFactor = 1;
 
-    int rows;
-    int columns;
+    private int rows;
+    private int columns;
     ImageIcon tileSprites[];
     ImageIcon lifeFormSprites[];
     ImageIcon scaledTileSprites[];

@@ -9,9 +9,9 @@ import java.util.Hashtable;
  */
 public class MainGameView extends JComponent
 {
-    static final int ZOOM_MIN = 0;
-    static final int ZOOM_MAX = 3;
-    static final int ZOOM_INIT = ZOOM_MAX;
+    private static final int ZOOM_MIN = 0;
+    private static final int ZOOM_MAX = 3;
+    private static final int ZOOM_INIT = ZOOM_MAX;
 
     GridMap map;
     JSlider zoomSlider;
