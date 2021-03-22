@@ -18,7 +18,7 @@ import java.time.Duration;
 class MainGameModel {
     public Tile[][] map;
     public int speed = 1;
-    public boolean active = true;
+    public boolean active = false;
     public int numSeconds;
 
     MainGameModel() {
@@ -92,64 +92,93 @@ class MainGameModel {
         return false;
     }
 
-    public Point findPlant(Grazer grazer) {
-        Point destination = new Point();
-        Point coordinates = FindTileWithActor(grazer);
+    //Calculate distance between two points, we can rewrite this if we upgrade from rooks to queens
+    public int findDistance(Point first, Point second) {
+        int x1 = first.x;
+        int x2 = second.x;
+        int y1 = first.y;
+        int y2 = second.y;
 
-        return destination;
+        int x = x1 - x2;
+        int y = y1 - y2;
+        int dist = Math.abs(x) + Math.abs(y);
+        return dist;
     }
 
-    //To avoid errors, use this to check to see whether there is a plant visible to a grazer before running findPlant()
-    public boolean isPlantInRange(int x, int y) {
-        int lowX;
-        int lowY;
-        int highX;
-        int highY;
-
-        if (x - 125 >= 0) {
-            lowX = x - 125;
+    //Return location of nearest specified type of actor
+    public Point findNearestActor(char finding, Actor actor) {
+        Point location = FindTileWithActor(actor);
+        int x = location.x;
+        int y = location.y;
+        Actor nearest = null;
+        int min_distance = 150;
+        int startx, starty, s_height, s_width;
+        if(x >= 150) {
+            startx = x - 150;
         }
         else {
-            lowX = 0;
+            startx = 0;
         }
 
-        if (y - 125 >= 0) {
-            lowY = y - 125;
+        if (x + 125 < map.length) {
+            s_width = x + 125;
         }
         else {
-            lowY = 0;
+            s_width = map.length - 1;
         }
-
-        if (x + 125 <= map.length) {
-            highX = x + 125;
+        if (y > 150) {
+            starty = y - 150;
         }
         else {
-            highX = map.length;
+            starty = 0;
         }
-
-        if (y + 125 <= map[0].length) {
-            highY = y + 125;
+        if (y + 150 > map[0].length) {
+            s_height = map[0].length - 1;
         }
-
         else {
-            highY = map[0].length;
+            s_height = y + 150;
         }
+        //Right now that's out of the way and we have the range we're searching
+        Point source = new Point();
+        source.x = x - startx;
+        source.y = y - starty;
+        for (int i = startx; i < s_width; i++) {
+            for (int j = starty; j < s_height; j++) {
+                if ((finding == 'p' && map[i][j].occupier instanceof Plant) || (finding == 'g' && map[i][j].occupier instanceof Grazer) || (finding == 'P' && map[i][j].occupier instanceof Predator)) {
+                    Point target = new Point();
+                    target.x = i - startx;
+                    target.y = j - starty;
 
-        for(int i = lowX; i < highX; i++) {
-            for (int j = lowY; j < highY; j++) {
-                if (map[i][j].occupier instanceof Plant) {
-                    if (!this.obstacleBetween(x,y,i,j)) {
-                        return true;
+                    if (finding == 'P') {
+                        Predator pred = (Predator) actor;
+                        Predator meal = (Predator) map[i][j].occupier;
+                        meal.inDanger(pred);
+                    }
+                    else if (finding == 'g') {
+                        Grazer grazer = (Grazer) map[i][j].occupier;
+                        grazer.inDanger(x,y);
+                    }
+
+                    int distance = findDistance(source, target);
+                    //Make sure target is actually visible to actor; accounting for Predators' sense of smell
+                    if (distance < min_distance && !obstacleBetween(x,y,i,j) || (actor instanceof Predator && distance >= 25)) {
+                        distance = min_distance;
+                        nearest = map[i][j].occupier;
                     }
                 }
             }
         }
-        return false;
+        if (nearest != null) {
+            Point closest = FindTileWithActor(nearest);
+            return closest;
+        }
+        else {
+            return null;
+        }
+
     }
 
-    public void setSpeed(int speed) {
-        this.speed = speed;
-    }
+
     public void save(SaveSession save) {
 
     }
