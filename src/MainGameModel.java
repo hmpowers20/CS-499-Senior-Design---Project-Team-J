@@ -144,26 +144,28 @@ class MainGameModel {
         source.y = y - starty;
         for (int i = startx; i < s_width; i++) {
             for (int j = starty; j < s_height; j++) {
-                if ((finding == 'p' && map[i][j].occupier instanceof Plant) || (finding == 'g' && map[i][j].occupier instanceof Grazer) || (finding == 'P' && map[i][j].occupier instanceof Predator)) {
-                    Point target = new Point();
-                    target.x = i - startx;
-                    target.y = j - starty;
+                if (!(i == x && j == y)) {
+                    if ((finding == 'p' && map[i][j].occupier instanceof Plant) || (finding == 'g' && map[i][j].occupier instanceof Grazer) || (finding == 'P' && map[i][j].occupier instanceof Predator)) {
+                        Point target = new Point();
+                        target.x = i - startx;
+                        target.y = j - starty;
+                        boolean obstacle = obstacleBetween(x,y,i,j);
 
-                    if (finding == 'P') {
-                        Predator pred = (Predator) actor;
-                        Predator meal = (Predator) map[i][j].occupier;
-                        meal.inDanger(pred);
-                    }
-                    else if (finding == 'g') {
-                        Grazer grazer = (Grazer) map[i][j].occupier;
-                        grazer.inDanger(x,y);
-                    }
+                        if (finding == 'P') {
+                            Predator pred = (Predator) actor;
+                            Predator meal = (Predator) map[i][j].occupier;
+                            meal.inDanger(pred);
+                        } else if (finding == 'g' && !obstacle) {
+                            Grazer grazer = (Grazer) map[i][j].occupier;
+                            grazer.inDanger(x, y);
+                        }
 
-                    int distance = findDistance(source, target);
-                    //Make sure target is actually visible to actor; accounting for Predators' sense of smell
-                    if (distance < min_distance && !obstacleBetween(x,y,i,j) || (actor instanceof Predator && distance >= 25)) {
-                        distance = min_distance;
-                        nearest = map[i][j].occupier;
+                        int distance = findDistance(source, target);
+                        //Make sure target is actually visible to actor; accounting for Predators' sense of smell
+                        if (distance < min_distance && !obstacle || (actor instanceof Predator && distance >= 25)) {
+                            distance = min_distance;
+                            nearest = map[i][j].occupier;
+                        }
                     }
                 }
             }
