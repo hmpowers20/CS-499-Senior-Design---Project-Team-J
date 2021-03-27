@@ -37,6 +37,11 @@ public class Predator extends Actor {
 
     }
 
+    public void inDanger(Predator attacker) {
+        //The reason I'm passing in the predator rather than the coordinates is so that this function can check whether the other predator
+        //is trying to eat them or mate with them
+    }
+
     public int getEnergy() {
         return energy;
     }
