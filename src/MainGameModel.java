@@ -11,12 +11,15 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.ArrayList;
 
 class MainGameModel {
     public Tile[][] map;
+    public java.util.List<Actor> actors = new ArrayList<>();
     public int speed = 1;
     public boolean active = false;
     public int numSeconds;
@@ -32,27 +35,15 @@ class MainGameModel {
 
     public Point FindTileWithActor(Actor actor)
     {
-        for (int i = 0; i < map.length; i++)
-        {
-            for (int j = 0; j < map[i].length; j++)
-            {
-                if (map[i][j].occupier == actor)
-                {
-                    return new Point(i, j);
-                }
-            }
-        }
-
-        return null;
+        return new Point((int)actor.x, (int)actor.y);
     }
 
     public void addActor(Actor actor, int x, int y) {
-        map[x][y].occupier = actor;
+        actors.add(actor);
     }
 
     public void removeActor(Actor actor) {
-        Point coordinates = FindTileWithActor(actor);
-        map[coordinates.x][coordinates.y].occupier = null;
+        actors.remove(actor);
     }
 
     //Plug in two points and see if there is an obstacle between them
@@ -106,80 +97,22 @@ class MainGameModel {
     }
 
     //Return location of nearest specified type of actor
-    public Point findNearestActor(char finding, Actor actor) {
-        Point location = FindTileWithActor(actor);
-        int x = location.x;
-        int y = location.y;
-        Actor nearest = null;
-        int min_distance = 150;
-        int startx, starty, s_height, s_width;
-        if(x >= 150) {
-            startx = x - 150;
-        }
-        else {
-            startx = 0;
-        }
+    public Point2D.Float findNearestActor(char[] finding, Actor actor) {
+        double minDist = Double.POSITIVE_INFINITY;
+        Actor minDistActor = null;
 
-        if (x + 125 < map.length) {
-            s_width = x + 125;
-        }
-        else {
-            s_width = map.length - 1;
-        }
-        if (y > 150) {
-            starty = y - 150;
-        }
-        else {
-            starty = 0;
-        }
-        if (y + 150 > map[0].length) {
-            s_height = map[0].length - 1;
-        }
-        else {
-            s_height = y + 150;
-        }
-        //Right now that's out of the way and we have the range we're searching
-        Point source = new Point();
-        source.x = x - startx;
-        source.y = y - starty;
-        for (int i = startx; i < s_width; i++) {
-            for (int j = starty; j < s_height; j++) {
-                if (!(i == x && j == y)) {
-                    if ((finding == 'p' && map[i][j].occupier instanceof Plant) || (finding == 'g' && map[i][j].occupier instanceof Grazer) || (finding == 'P' && map[i][j].occupier instanceof Predator)) {
-                        Point target = new Point();
-                        target.x = i - startx;
-                        target.y = j - starty;
-                        boolean obstacle = obstacleBetween(x,y,i,j);
-
-                        if (finding == 'P') {
-                            Predator pred = (Predator) actor;
-                            Predator meal = (Predator) map[i][j].occupier;
-                            meal.inDanger(pred);
-                        } else if (finding == 'g' && !obstacle) {
-                            Grazer grazer = (Grazer) map[i][j].occupier;
-                            grazer.inDanger(x, y);
-                        }
-
-                        int distance = findDistance(source, target);
-                        //Make sure target is actually visible to actor; accounting for Predators' sense of smell
-                        if (distance < min_distance && !obstacle || (actor instanceof Predator && distance >= 25)) {
-                            distance = min_distance;
-                            nearest = map[i][j].occupier;
-                        }
-                    }
-                }
+        for (Actor otherActor : actors)
+        {
+            double distance = Math.sqrt(Math.pow(actor.x - otherActor.x, 2) + Math.pow(actor.y - otherActor.y, 2));
+            if (distance < minDist)
+            {
+                minDist = distance;
+                minDistActor = otherActor;
             }
         }
-        if (nearest != null) {
-            Point closest = FindTileWithActor(nearest);
-            return closest;
-        }
-        else {
-            return null;
-        }
 
+        return new Point2D.Float(minDistActor.x, minDistActor.y);
     }
-
 
     public void save(SaveSession save) {
 
@@ -192,15 +125,10 @@ class MainGameModel {
     public int getNumGrazers() {
         int numGrazers = 0;
 
-        for (int i = 0; i < map.length; i++)
+        for (Actor actor : actors)
         {
-            for (int j = 0; j < map[i].length; j++)
-            {
-                if (map[i][j].occupier instanceof Grazer)
-                {
-                    numGrazers++;
-                }
-            }
+            if (actor instanceof Grazer)
+                numGrazers++;
         }
 
         return numGrazers;
@@ -209,15 +137,10 @@ class MainGameModel {
     public int getNumPredators() {
         int numPredators = 0;
 
-        for (int i = 0; i < map.length; i++)
+        for (Actor actor : actors)
         {
-            for (int j = 0; j < map[i].length; j++)
-            {
-                if (map[i][j].occupier instanceof Predator)
-                {
-                    numPredators++;
-                }
-            }
+            if (actor instanceof Predator)
+                numPredators++;
         }
 
         return numPredators;
@@ -226,15 +149,10 @@ class MainGameModel {
     public int getNumPlants() {
         int numPlants = 0;
 
-        for (int i = 0; i < map.length; i++)
+        for (Actor actor : actors)
         {
-            for (int j = 0; j < map[i].length; j++)
-            {
-                if (map[i][j].occupier instanceof Plant)
-                {
-                    numPlants++;
-                }
-            }
+            if (actor instanceof Plant)
+                numPlants++;
         }
 
         return numPlants;
@@ -351,7 +269,7 @@ class MainGameModel {
                     }
                 }
                 Plant tempPlant = new Plant(growth_rate, diameter, seedcount, seed_distance, viability);
-                map[x][y].occupier = tempPlant;
+                actors.add(tempPlant);
             }
         }
 
@@ -411,7 +329,7 @@ class MainGameModel {
 
                 }
                 Grazer tempGrazer = new Grazer(g_max, init_energy, energy_In, energy_Out, g_reproduce, maintain);
-                map[x][y].occupier = tempGrazer;
+                actors.add(tempGrazer);
             }
         }
 
@@ -487,7 +405,7 @@ class MainGameModel {
                     }
                 }
                 Predator tempPredator = new Predator(speed_hod, speed_hed, speed_hor, p_energy, p_energy_out, gestation, genotype, p_maintain, p_reproduce, p_offspring, e_offspring);
-                map[x][y].occupier = tempPredator;
+                actors.add(tempPredator);
             }
         }
 
@@ -525,7 +443,7 @@ class MainGameModel {
                     }
                 }
                 Obstacle tempObstacle = new Obstacle(o_diameter, o_height);
-                map[x][y].occupier = tempObstacle;
+                actors.add(tempObstacle);
                 //May need to expand here so that obstacle can take multiple tiles (depending on implementation)
             }
         }

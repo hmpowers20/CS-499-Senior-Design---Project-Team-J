@@ -113,17 +113,12 @@ public class GridMap extends JComponent {
         int endCol = (int)Math.ceil((double)(viewRect.x + viewRect.width) / (tileSize / zoomFactor));
         int endRow = (int)Math.ceil((double)(viewRect.y + viewRect.height) / (tileSize / zoomFactor));
 
-        for (int i = startRow; i < endRow && i < rows; i++)
+        for (Actor actor : model.actors)
         {
-            for (int j = startCol; j < endCol && j < columns; j++)
-            {
-                if (model.map[i][j].occupier != null) {
-                    JLabel actor = new JLabel();
-                    actor.setIcon(GetSprite(model.map[i][j].occupier));
-                    actor.setBounds(j * (tileSize / zoomFactor), i * (tileSize / zoomFactor), (tileSize / zoomFactor), (tileSize / zoomFactor));
-                    add(actor);
-                }
-            }
+            JLabel actorLabel = new JLabel();
+            actorLabel.setIcon(GetSprite(actor));
+            actorLabel.setBounds(actor.GetIntX() * (tileSize / zoomFactor), actor.GetIntY() * (tileSize / zoomFactor), (tileSize / zoomFactor), (tileSize / zoomFactor));
+            add(actorLabel);
         }
 
         for (int i = startRow; i < endRow && i < rows; i++)
