@@ -87,17 +87,18 @@ class MainGameModel {
     }
 
     //Return location of nearest specified type of actor
-    public Point2D.Float findNearestActor(char[] finding, Actor actor) {
+    public Point2D.Float findNearestActor(char finding, Actor actor) {
         double minDist = Double.POSITIVE_INFINITY;
         Actor minDistActor = null;
 
         for (Actor otherActor : actors)
         {
-            double distance = Math.sqrt(Math.pow(actor.x - otherActor.x, 2) + Math.pow(actor.y - otherActor.y, 2));
-            if (distance < minDist)
-            {
-                minDist = distance;
-                minDistActor = otherActor;
+            if (finding == 'p' && otherActor instanceof Plant || finding == 'g' && otherActor instanceof Grazer || finding == 'P' && otherActor instanceof Predator) {
+                double distance = Math.sqrt(Math.pow(actor.x - otherActor.x, 2) + Math.pow(actor.y - otherActor.y, 2));
+                if (distance < minDist) {
+                    minDist = distance;
+                    minDistActor = otherActor;
+                }
             }
         }
 
@@ -318,7 +319,7 @@ class MainGameModel {
                     }
 
                 }
-                Grazer tempGrazer = new Grazer(g_max, init_energy, energy_In, energy_Out, g_reproduce, maintain);
+                Grazer tempGrazer = new Grazer(g_max, init_energy, energy_In, energy_Out, g_reproduce, maintain,x,y);
                 actors.add(tempGrazer);
             }
         }
