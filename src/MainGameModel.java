@@ -48,38 +48,28 @@ class MainGameModel {
 
     //Plug in two points and see if there is an obstacle between them
     public boolean obstacleBetween(int x1, int y1, int x2, int y2) {
-        if (x1 == x2) {
-           if (y1 >= y2) {
-               for (int i = y2; i < y1; i++) {
-                   if (map[x1][i].occupier instanceof Obstacle) {
-                       return true;
-                   }
-               }
-           }
-           else {
-               for (int i = y1; i < y2; i++) {
-                   if (map[x1][i].occupier instanceof Obstacle) {
-                       return true;
-                   }
-               }
-           }
-        }
-        else {
-            if (x1 >= x2) {
-                for (int i = x2; i < x1; i++) {
-                    if (map[i][y1].occupier instanceof Obstacle) {
-                        return true;
-                    }
-                }
+
+        for (Actor actor : actors) {
+            int dx = x2 - x1;
+            int y = y1;
+            int interval;
+            if (dx != 0) {
+                interval = (y2 - y1) / dx; //Finding slope
             }
             else {
+                interval = 0;
+            }
+
+            if (actor instanceof Obstacle) {
                 for (int i = x1; i < x2; i++) {
-                    if (map[i][y1].occupier instanceof Obstacle) {
+                    y += interval;
+                    if (actor.x == i && actor.y == y) {
                         return true;
                     }
                 }
             }
         }
+
         return false;
     }
 
