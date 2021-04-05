@@ -38,7 +38,7 @@ class MainGameModel {
         return new Point((int)actor.x, (int)actor.y);
     }
 
-    public void addActor(Actor actor, int x, int y) {
+    public void addActor(Actor actor) {
         actors.add(actor);
     }
 
@@ -103,6 +103,24 @@ class MainGameModel {
         }
 
         return minDistActor;
+    }
+
+    public boolean checkObstacle(int x, int y) {
+        for (Actor actor : actors) {
+            if (actor instanceof Obstacle) {
+                Obstacle obstacle = (Obstacle) actor;
+                float low_x = obstacle.x - obstacle.diameter;
+                float high_x = obstacle.x + obstacle.diameter;
+                float low_y = obstacle.y + obstacle.diameter;
+                float high_y = obstacle.y + obstacle.diameter;
+
+                //Check to see if our given point falls within an obstacle's diameter
+                if ((low_x <= x) && (x <= high_x) && (low_y <= y) && (y <= high_y)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public void save(SaveSession save) {
