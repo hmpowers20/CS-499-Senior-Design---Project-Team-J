@@ -87,7 +87,7 @@ class MainGameModel {
     }
 
     //Return location of nearest specified type of actor
-    public Point2D.Float findNearestActor(char finding, Actor actor) {
+    public Actor findNearestActor(char finding, Actor actor) {
         double minDist = Double.POSITIVE_INFINITY;
         Actor minDistActor = null;
 
@@ -102,7 +102,7 @@ class MainGameModel {
             }
         }
 
-        return new Point2D.Float(minDistActor.x, minDistActor.y);
+        return minDistActor;
     }
 
     public void save(SaveSession save) {
