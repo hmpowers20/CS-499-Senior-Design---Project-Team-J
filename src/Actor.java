@@ -1,6 +1,6 @@
 public abstract class Actor {
     float x, y;
-    int energy;
+    float energy;
 
     public int GetIntX()
     {
