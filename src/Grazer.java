@@ -9,7 +9,7 @@ public class Grazer extends Actor  {
     boolean danger;
     Plant food;
 
-    public Grazer(float speed, int energy, int energy_input, int energy_output, int reproduce, float maintain, float x, float y) {
+    public Grazer(float speed, float energy, int energy_input, int energy_output, int reproduce, float maintain, float x, float y) {
         this.energy = energy;
         this.energy_output = energy_output;
         this.energy_input = energy_input;
@@ -24,7 +24,6 @@ public class Grazer extends Actor  {
 
     //Move the grazer to the correct position, unless this takes them beyond the bounds of the map
     void move(int direction, float distance, MainGameModel model) {
-        System.out.println("Hi I'm a grazer in motion");
         //Move right
         if (direction == 1 && x + distance <= model.getMapWidth()) {
             x += distance;
@@ -42,20 +41,16 @@ public class Grazer extends Actor  {
         }
         float energy_expended = energy_output / 5;
         energy -= energy_expended;
-        String x_pos = String.valueOf(x);
-        String y_post = String.valueOf(y);
-        System.out.println("Hi I'm a grazer and my current position is "+x+" "+y);
         return;
     }
 
     void eat(Plant food) {
-        //food.eaten();
-        //energy += energy_input / 60;
+        food.eaten();
+        energy += energy_input / 60;
     }
 
     @Override
     public void Update(MainGameModel model) {
-        String energy_string = Float.toString(energy);
 
         if (energy <= 0) {
             //We die
@@ -69,14 +64,14 @@ public class Grazer extends Actor  {
 
         if (!danger && food == null && energy < reproduce) {
             food = (Plant) model.findNearestActor(new char[] {'p'},this);
-            System.out.println("I'm a grazer and I've found food! It's at: ");
-            System.out.println(food.x);
-            System.out.println(food.y);
         }
 
         //If we're not in danger and already have access to food, eat the food
-        else if (!danger && food != null && (food.x == x && food.y == y )) {
+        else if (!danger && food != null && canEat()) {
             eat(food);
+            if (!food.edible) {
+                food = null;
+            }
             return;
         }
 
@@ -149,26 +144,42 @@ public class Grazer extends Actor  {
         if (direction == 1) {
             float new_x = x + distance;
             if (new_x <= model.getMapWidth()) {
-                return model.checkObstacle(new_x, y);
+                return !model.checkObstacle(new_x, y);
             }
         }
         if (direction == 2) {
             float new_y = y + distance;
             if (new_y <= model.getMapHeight()) {
-                return model.checkObstacle(x, new_y);
+                return !model.checkObstacle(x, new_y);
             }
         }
         if (direction == 3) {
             float new_x = x - distance;
             if (new_x >= 0) {
-                return model.checkObstacle(new_x, y);
+                return !model.checkObstacle(new_x, y);
             }
         }
         if (direction == 4) {
             float new_y = y - distance;
             if (new_y >= 0) {
-                return model.checkObstacle(x, new_y);
+                return !model.checkObstacle(x, new_y);
             }
+        }
+        return false;
+    }
+
+    boolean canEat() {
+        if (food == null) {
+            return false;
+        }
+        float low_x, low_y, high_x, high_y;
+        low_x = food.x - food.radius;
+        high_x = food.x + food.radius;
+        low_y = food.y - food.radius;
+        high_y = food.y + food.radius;
+
+        if (x >= low_x && x <= high_x && y >= low_y && y <= high_y) {
+            return true;
         }
         return false;
     }
@@ -182,7 +193,7 @@ public class Grazer extends Actor  {
         //Or running by another unsuspecting grazer so that it attacks them instead because that's the sort of behavior we're rewarding I guess
     }
 
-    public int getEnergy() {
+    public float getEnergy() {
         return energy;
     }
 
