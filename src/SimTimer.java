@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.Iterator;
+
 public class SimTimer {
     boolean shouldCount=false;
 
@@ -8,10 +11,11 @@ public class SimTimer {
                     if (model.active) {
                         model.numSeconds++;
                         long startTime = System.currentTimeMillis();
-
                         // Update all actors
-                        for (Actor actor : model.actors)
+                        int length = model.actors.size();
+                        for (int i = 0; i < length; i++)
                         {
+                            Actor actor = model.actors.get(i);
                             actor.Update(model);
                         }
 
