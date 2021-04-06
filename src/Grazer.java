@@ -39,14 +39,16 @@ public class Grazer extends Actor  {
         else if (direction == 4 && y - distance >= 0) {
             y -= distance;
         }
-        float energy_expended = energy_output / 5;
+
+        float energy_expended = (float) ((float)energy_output / 5.0); //This looks like a mess to me too but it's the only way it works
         energy -= energy_expended;
         return;
     }
 
     void eat(Plant food) {
         food.eaten();
-        energy += energy_input / 60;
+        energy += (float)energy_input / 60.0;
+
     }
 
     @Override
@@ -63,7 +65,13 @@ public class Grazer extends Actor  {
 
 
         if (!danger && food == null && energy < reproduce) {
-            food = (Plant) model.findNearestActor(new char[] {'p'},this);
+            if (model.findNearestActor(new char[] {'p'},this) == null) {
+                food = null;
+            }
+            else {
+                food = (Plant) model.findNearestActor(new char[] {'p'},this);
+            }
+
         }
 
         //If we're not in danger and already have access to food, eat the food
@@ -83,8 +91,8 @@ public class Grazer extends Actor  {
 
         //If we're not in danger and have the energy, reproduce
         else if (!danger && energy >= reproduce) {
-            Grazer offspring = new Grazer(speed, energy, energy_input, energy_output, reproduce, maintain, x, y);
-            model.addActor(offspring);
+            //Grazer offspring = new Grazer(speed, energy, energy_input, energy_output, reproduce, maintain, x, y);
+            //model.addActor(offspring);
             return;
         }
 
@@ -94,6 +102,7 @@ public class Grazer extends Actor  {
         if (food == null) { //Generate a random direction to move if we still don't have one
             Random rand = new Random();
             dir1 = rand.nextInt(4) + 1;
+
         }
         else {
             if (food.x > x) {
