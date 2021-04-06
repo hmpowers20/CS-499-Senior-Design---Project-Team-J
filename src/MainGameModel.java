@@ -105,7 +105,7 @@ class MainGameModel {
         return minDistActor;
     }
 
-    public boolean checkObstacle(int x, int y) {
+    public boolean checkObstacle(float x, float y) {
         for (Actor actor : actors) {
             if (actor instanceof Obstacle) {
                 Obstacle obstacle = (Obstacle) actor;
