@@ -1,8 +1,10 @@
 public class Obstacle extends Actor  {
     int height, diameter;
-    public Obstacle(int diameter, int height) {
+    public Obstacle(int diameter, int height, int x, int y) {
         this.diameter = diameter;
         this.height = height; //Why do these have height; I do not understand
+        this.x = x;
+        this.y = y;
     }
 
     @Override

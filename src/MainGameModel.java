@@ -277,7 +277,7 @@ class MainGameModel {
                         diameter = Integer.parseInt(value.trim());
                     }
                 }
-                Plant tempPlant = new Plant(growth_rate, diameter, seedcount, seed_distance, viability);
+                Plant tempPlant = new Plant(growth_rate, diameter, seedcount, seed_distance, viability, x, y);
                 actors.add(tempPlant);
             }
         }
@@ -413,7 +413,7 @@ class MainGameModel {
                         genotype = thisNode.getTextContent();
                     }
                 }
-                Predator tempPredator = new Predator(speed_hod, speed_hed, speed_hor, p_energy, p_energy_out, gestation, genotype, p_maintain, p_reproduce, p_offspring, e_offspring);
+                Predator tempPredator = new Predator(speed_hod, speed_hed, speed_hor, p_energy, p_energy_out, gestation, genotype, p_maintain, p_reproduce, p_offspring, e_offspring, x, y);
                 actors.add(tempPredator);
             }
         }
@@ -451,7 +451,7 @@ class MainGameModel {
                         o_height = Integer.parseInt(rwhitespace.trim());
                     }
                 }
-                Obstacle tempObstacle = new Obstacle(o_diameter, o_height);
+                Obstacle tempObstacle = new Obstacle(o_diameter, o_height, x, y);
                 actors.add(tempObstacle);
                 //May need to expand here so that obstacle can take multiple tiles (depending on implementation)
             }

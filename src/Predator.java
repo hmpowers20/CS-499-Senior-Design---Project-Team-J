@@ -14,7 +14,7 @@ public class Predator extends Actor {
     Actor parent; //null for first-generation dinosaurs, be sure to update offspring with parent
     int e_offspring; //Initial energy level for offspring
 
-    public Predator(float speed_hod, float speed_hed, float speed_hor, int energy, int energy_output, float gestation, String genotype, float maintain, int reproduce, int maxOffspring, int e_offspring) {
+    public Predator(float speed_hod, float speed_hed, float speed_hor, int energy, int energy_output, float gestation, String genotype, float maintain, int reproduce, int maxOffspring, int e_offspring, float x, float y) {
         this.speed_hed = speed_hed;
         this.speed_hod = speed_hod;
         this.speed_hor = speed_hor;
@@ -30,6 +30,8 @@ public class Predator extends Actor {
         mating = false;
         hungry = true;
         pursuing = false;
+        this.x = x;
+        this.y = y;
     }
 
     @Override

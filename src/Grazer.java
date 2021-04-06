@@ -19,10 +19,12 @@ public class Grazer extends Actor  {
         this.x = x;
         this.y = y;
         danger = false;
+        food = null;
     }
 
     //Move the grazer to the correct position, unless this takes them beyond the bounds of the map
     void move(int direction, float distance, MainGameModel model) {
+        System.out.println("Hi I'm a grazer in motion");
         //Move right
         if (direction == 1 && x + distance <= model.getMapWidth()) {
             x += distance;
@@ -40,27 +42,36 @@ public class Grazer extends Actor  {
         }
         float energy_expended = energy_output / 5;
         energy -= energy_expended;
+        String x_pos = String.valueOf(x);
+        String y_post = String.valueOf(y);
+        System.out.println("Hi I'm a grazer and my current position is "+x+" "+y);
         return;
     }
 
     void eat(Plant food) {
         //food.eaten();
-        energy += energy_input / 60;
+        //energy += energy_input / 60;
     }
 
     @Override
     public void Update(MainGameModel model) {
+        String energy_string = Float.toString(energy);
 
-        if (energy >= 0) {
+        if (energy <= 0) {
             //We die
             //model.removeActor(this);
             //Once we've got a sprite, remove sprite
-            return;
+            //return;
         }
 
         //If we're not in danger and don't have food already and aren't spawning offspring, find food
+
+
         if (!danger && food == null && energy < reproduce) {
             food = (Plant) model.findNearestActor('p',this);
+            System.out.println("I'm a grazer and I've found food! It's at: ");
+            System.out.println(food.x);
+            System.out.println(food.y);
         }
 
         //If we're not in danger and already have access to food, eat the food
@@ -175,8 +186,4 @@ public class Grazer extends Actor  {
         return energy;
     }
 
-    public void Eat()
-    {
-        energy += energy_input / 60;
-    }
 }

@@ -2,12 +2,14 @@ public class Plant extends Actor  {
     int radius, maxSeeds, maxSeedDistance;
     float viability, rate;
 
-    public Plant(float rate, int radius, int maxSeeds, int maxSeedDistance, float viability) {
+    public Plant(float rate, int radius, int maxSeeds, int maxSeedDistance, float viability, float x, float y) {
         this.rate = rate;
         this.radius = radius;
         this.maxSeeds = maxSeeds;
         this.maxSeedDistance = maxSeedDistance;
         this.viability = viability;
+        this.x = x;
+        this.y = y;
     }
 
     @Override
