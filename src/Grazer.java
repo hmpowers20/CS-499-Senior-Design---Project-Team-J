@@ -53,7 +53,7 @@ public class Grazer extends Actor  {
 
         if (energy >= 0) {
             //We die
-            model.removeActor(this);
+            //model.removeActor(this);
             //Once we've got a sprite, remove sprite
             return;
         }
@@ -106,7 +106,7 @@ public class Grazer extends Actor  {
 
         }
 
-        /* Motion logic */
+        // Motion logic
         if (dir1 > 0) {
             if (checkValidMove(dir1,distance,model)) {
                 move(dir1, distance, model);
@@ -128,7 +128,10 @@ public class Grazer extends Actor  {
             move(dir1, distance, model);
         }
 
+
+
         return;
+
     }
 
     boolean checkValidMove(int direction, float distance, MainGameModel model) {
