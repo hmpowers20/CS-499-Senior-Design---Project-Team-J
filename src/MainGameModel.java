@@ -283,7 +283,7 @@ class MainGameModel {
 
         children = node.getChildNodes();
         float growth_rate = 0, viability = 0;
-        int max_size, seed_distance = 0, seedcount = 0, x = 0, y = 0, diameter = 0;
+        int max_size = 0, seed_distance = 0, seedcount = 0, x = 0, y = 0, diameter = 0;
 
         for (int i = 0; i < children.getLength(); i++) {
             Node tempNode = children.item(i);
@@ -292,7 +292,8 @@ class MainGameModel {
                 growth_rate = Float.parseFloat(tempNode.getTextContent());
             }
             else if(name == "MAX_SIZE") {
-                //max_size = Integer.parseInt(tempNode.getTextContent());
+                String value = tempNode.getTextContent();
+                max_size = Integer.parseInt(value.trim());
             }
             else if (name == "MAX_SEED_CAST_DISTANCE") {
                 String value = tempNode.getTextContent();
@@ -324,7 +325,7 @@ class MainGameModel {
                         diameter = Integer.parseInt(value.trim());
                     }
                 }
-                Plant tempPlant = new Plant(growth_rate, diameter, seedcount, seed_distance, viability, x, y);
+                Plant tempPlant = new Plant(growth_rate, diameter, max_size, seedcount, seed_distance, viability, x, y);
                 actors.add(tempPlant);
             }
         }
