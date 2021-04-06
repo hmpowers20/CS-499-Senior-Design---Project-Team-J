@@ -75,17 +75,14 @@ class MainGameModel {
 
     public void moveActor(Actor actor, float moveDistance, Point direction)
     {
-        moveActor(actor, moveDistance, direction, FindTileWithActor(actor));
-    }
-
-    public void moveActor(Actor actor, float moveDistance, Point direction, Point actorLocation)
-    {
         // normalize direction
         double directionMagnitude = Math.sqrt(direction.x*direction.x + direction.y*direction.y);
-        Point2D.Double normalizedDirection = new Point2D.Double(direction.x / directionMagnitude, direction.y / directionMagnitude);
+        Point2D.Double normalizedDirection = new Point2D.Double(direction.x / directionMagnitude,
+                direction.y / directionMagnitude);
 
         // Get x and y to transform actor
-        Point movement = new Point((int)Math.floor(normalizedDirection.x * moveDistance), (int)Math.floor(normalizedDirection.y * moveDistance));
+        Point2D.Double movement = new Point2D.Double(normalizedDirection.x * moveDistance,
+                normalizedDirection.y * moveDistance);
 
         actor.x += movement.x;
         actor.y += movement.y;
@@ -110,8 +107,18 @@ class MainGameModel {
     }
 
     //Return location of nearest specified type of actor
+    public Actor findNearestActor(char[] finding, Actor actor, Actor actorToExclude) {
+        return findNearestActor(finding, actor.GetIntX(), actor.GetIntY(), Integer.MAX_VALUE, actorToExclude);
+    }
+
+    //Return location of nearest specified type of actor
     public Actor findNearestActor(char[] finding, Actor actor, int range) {
         return findNearestActor(finding, actor.GetIntX(), actor.GetIntY(), range);
+    }
+
+    //Return location of nearest specified type of actor
+    public Actor findNearestActor(char[] finding, Actor actor, int range, Actor actorToExclude) {
+        return findNearestActor(finding, actor.GetIntX(), actor.GetIntY(), range, actorToExclude);
     }
 
     //Return location of nearest specified type of actor
@@ -120,22 +127,35 @@ class MainGameModel {
     }
 
     //Return location of nearest specified type of actor
+    public Actor findNearestActor(char[] finding, int x, int y, Actor actorToExclude) {
+        return findNearestActor(finding, x, y, Integer.MAX_VALUE, actorToExclude);
+    }
+
+    //Return location of nearest specified type of actor
     public Actor findNearestActor(char[] findings, int x, int y, int range) {
+        return findNearestActor(findings, x, y, range, null);
+    }
+
+    //Return location of nearest specified type of actor
+    public Actor findNearestActor(char[] findings, int x, int y, int range, Actor actorToExclude) {
         double minDist = Double.POSITIVE_INFINITY;
         Actor minDistActor = null;
 
         for (Actor otherActor : actors)
         {
-            for (char finding : findings) {
-                if (finding == 'p' && otherActor instanceof Plant ||
-                        finding == 'g' && otherActor instanceof Grazer ||
-                        finding == 'P' && otherActor instanceof Predator) {
-                    double distance = Math.sqrt(Math.pow(x - otherActor.x, 2) + Math.pow(y - otherActor.y, 2));
-                    if (distance < minDist && !obstacleBetween(x, y, otherActor.GetIntX(), otherActor.GetIntY())) {
-                        minDist = distance;
-                        minDistActor = otherActor;
+            if (otherActor != actorToExclude)
+            {
+                for (char finding : findings) {
+                    if (finding == 'p' && otherActor instanceof Plant ||
+                            finding == 'g' && otherActor instanceof Grazer ||
+                            finding == 'P' && otherActor instanceof Predator) {
+                        double distance = Math.sqrt(Math.pow(x - otherActor.x, 2) + Math.pow(y - otherActor.y, 2));
+                        if (distance < minDist && distance <= range && !obstacleBetween(x, y, otherActor.GetIntX(), otherActor.GetIntY())) {
+                            minDist = distance;
+                            minDistActor = otherActor;
+                        }
+                        break;
                     }
-                    break;
                 }
             }
         }

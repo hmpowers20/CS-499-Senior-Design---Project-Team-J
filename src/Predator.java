@@ -78,35 +78,35 @@ public class Predator extends Actor {
         if (pursuing == null)
         {
             if ((genotype.aggression == Aggression.Most && mating == false)) {
-                pursuing = model.findNearestActor(new char[]{'P', 'g'}, location.x, location.y, FoodRange);
+                pursuing = model.findNearestActor(new char[]{'P', 'g'}, location.x, location.y, FoodRange, this);
             }
             else if (genotype.aggression == Aggression.Moderate && hungry == true) {
-                pursuing = model.findNearestActor(new char[] {'g'}, location.x, location.y, FoodRange);
+                pursuing = model.findNearestActor(new char[] {'g'}, location.x, location.y, FoodRange, this);
                 if (pursuing == null)
-                    pursuing = model.findNearestActor(new char[] {'P'}, location.x, location.y, FoodRange);
+                    pursuing = model.findNearestActor(new char[] {'P'}, location.x, location.y, FoodRange, this);
             }
             else if (genotype.aggression == Aggression.None && hungry == true) {
-                pursuing = model.findNearestActor(new char[] {'g'}, location.x, location.y, FoodRange);
+                pursuing = model.findNearestActor(new char[] {'g'}, location.x, location.y, FoodRange, this);
             }
         }
 
         if (pursuing != null)
         {
-            MoveToward(model, location, pursuing);
+            MoveToward(model, pursuing);
             timeSpentPursuing++;
         }
     }
 
-    public void MoveToward(MainGameModel model, Point myLoc, Actor actor)
+    public void MoveToward(MainGameModel model, Actor actor)
     {
         Point location = model.FindTileWithActor(actor);
-        MoveToward(model, myLoc, location);
+        MoveToward(model, location);
     }
 
-    public void MoveToward(MainGameModel model, Point myLoc, Point moveLoc)
+    public void MoveToward(MainGameModel model, Point moveLoc)
     {
-        Point direction = new Point(moveLoc.x - myLoc.x, moveLoc.y - myLoc.y);
-        model.moveActor(this, GetSpeed(), direction, myLoc);
+        Point direction = new Point(moveLoc.x - GetIntX(), moveLoc.y - GetIntY());
+        model.moveActor(this, GetSpeed(), direction);
     }
 
     public Genotype GetGenotype(String genotypeString) {

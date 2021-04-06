@@ -13,8 +13,6 @@ public class GridMap extends JComponent {
     private int columns;
     ImageIcon tileSprites[];
     ImageIcon lifeFormSprites[];
-    ImageIcon scaledTileSprites[];
-    ImageIcon scaledLifeformSprites[];
 
     double tileValues[][];
 
@@ -51,7 +49,6 @@ public class GridMap extends JComponent {
         ImageIcon plant3 = new ImageIcon(new ImageIcon("images/plant3.png").getImage().getScaledInstance(tileSize, tileSize, Image.SCALE_SMOOTH));
 
         lifeFormSprites = new ImageIcon[] { grazer, AApredator, FFpredator, SSpredator, OtherPredator, grazerOffspring, log, boulder, pileOfRocks, otherPredatorOffspring, plant1, plant2, plant3 };
-        scaledLifeformSprites = lifeFormSprites;
 
         // Add tiles
         ImageIcon grassTileImage = new ImageIcon(new ImageIcon("images/grass.png").getImage().getScaledInstance(tileSize, tileSize,  Image.SCALE_SMOOTH));
@@ -59,7 +56,6 @@ public class GridMap extends JComponent {
         ImageIcon sandTileImage = new ImageIcon(new ImageIcon("images/sand.png").getImage().getScaledInstance(tileSize, tileSize,  Image.SCALE_SMOOTH));
 
         tileSprites = new ImageIcon[] { grassTileImage, dirtTileImage, sandTileImage };
-        scaledTileSprites = tileSprites;
     }
 
     public void paint(Graphics g) {
@@ -87,17 +83,7 @@ public class GridMap extends JComponent {
             setPreferredSize(new Dimension(columns * tileSize / zoomFactor + 1, rows * tileSize / zoomFactor + 1));
             this.zoomFactor = zoomFactor;
 
-            for (int i = 0; i < tileSprites.length; i++) {
-                scaledTileSprites[i] = new ImageIcon(tileSprites[i].getImage().getScaledInstance(tileSize / zoomFactor, tileSize / zoomFactor, Image.SCALE_SMOOTH));
-            }
-
-            for (int i = 0; i < lifeFormSprites.length; i++) {
-                scaledLifeformSprites[i] = new ImageIcon(lifeFormSprites[i].getImage().getScaledInstance(tileSize / zoomFactor, tileSize / zoomFactor, Image.SCALE_SMOOTH));
-            }
-
             PaintTiles(model);
-            repaint();
-            revalidate();
         }
     }
 
@@ -122,7 +108,7 @@ public class GridMap extends JComponent {
         {
             for (int j = startCol; j < endCol && j < columns; j++)
             {
-                renderGraphics.drawImage(scaledTileSprites[GetTerrainTypeFromNoise(tileValues[i][j]).toInteger()].getImage(),
+                renderGraphics.drawImage(tileSprites[GetTerrainTypeFromNoise(tileValues[i][j]).toInteger()].getImage(),
                         (int)((j - startColExact) * (tileSize / zoomFactor)),
                         (int)((i - startRowExact) * (tileSize / zoomFactor)),
                         tileSize / zoomFactor, tileSize / zoomFactor, null);
@@ -135,7 +121,7 @@ public class GridMap extends JComponent {
                     actor.y >= startRow && actor.y <= endRow) {
                 renderGraphics.drawImage(GetSprite(actor).getImage(),
                         (int)((actor.GetIntX() - startColExact) * (tileSize / zoomFactor)),
-                        (int)((actor.GetIntX() - startRowExact) * (tileSize / zoomFactor)),
+                        (int)((actor.GetIntY() - startRowExact) * (tileSize / zoomFactor)),
                         tileSize / zoomFactor, tileSize / zoomFactor, null);
             }
         }
@@ -143,6 +129,8 @@ public class GridMap extends JComponent {
         JLabel map = new JLabel(new ImageIcon(render));
         map.setBounds(viewRect.x, viewRect.y, viewRect.width, viewRect.height);
         add(map);
+        repaint();
+        revalidate();
     }
 
     public TerrainType GetTerrainTypeFromNoise(double noise)
@@ -157,6 +145,6 @@ public class GridMap extends JComponent {
 
     public ImageIcon GetSprite(Actor actor)
     {
-        return scaledLifeformSprites[(int)(Math.random() * (scaledLifeformSprites.length))];
+        return lifeFormSprites[(int)(Math.random() * (lifeFormSprites.length))];
     }
 }
