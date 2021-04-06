@@ -18,7 +18,7 @@ public class Seed extends Actor  {
 
     void generate() {
         //This should be called somehow after the correct amount of time or what have you
-        Plant plant = new Plant(rate, radius, maxSeeds,maxSeedDistance, viability, x, y);
+        //Plant plant = new Plant(rate, radius, max_size, maxSeeds,maxSeedDistance, viability, x, y);
         //Do whatever to make the seed self destruct now
     }
 }
