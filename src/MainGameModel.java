@@ -77,15 +77,17 @@ class MainGameModel {
     {
         // normalize direction
         double directionMagnitude = Math.sqrt(direction.x*direction.x + direction.y*direction.y);
-        Point2D.Double normalizedDirection = new Point2D.Double(direction.x / directionMagnitude,
-                direction.y / directionMagnitude);
+        if (directionMagnitude >= .01 || directionMagnitude <= -.01) {
+            Point2D.Double normalizedDirection = new Point2D.Double(direction.x / directionMagnitude,
+                    direction.y / directionMagnitude);
 
-        // Get x and y to transform actor
-        Point2D.Double movement = new Point2D.Double(normalizedDirection.x * moveDistance,
-                normalizedDirection.y * moveDistance);
+            // Get x and y to transform actor
+            Point2D.Double movement = new Point2D.Double(normalizedDirection.x * moveDistance,
+                    normalizedDirection.y * moveDistance);
 
-        actor.x += movement.x;
-        actor.y += movement.y;
+            actor.x += movement.x;
+            actor.y += movement.y;
+        }
     }
 
     //Calculate distance between two points, we can rewrite this if we upgrade from rooks to queens
