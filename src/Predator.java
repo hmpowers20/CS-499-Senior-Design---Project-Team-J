@@ -158,7 +158,7 @@ public class Predator extends Actor {
         //is trying to eat them or mate with them
     }
 
-    public int getEnergy() {
+    public float getEnergy() {
         return energy;
     }
 
