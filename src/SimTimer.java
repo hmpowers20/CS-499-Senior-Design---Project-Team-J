@@ -10,15 +10,9 @@ public class SimTimer {
                         long startTime = System.currentTimeMillis();
 
                         // Update all actors
-                        for (Tile[] tileRow : model.map)
+                        for (Actor actor : model.actors)
                         {
-                            for (Tile tile : tileRow)
-                            {
-                                if (tile.occupier != null)
-                                {
-                                    tile.occupier.Update(model);
-                                }
-                            }
+                            actor.Update(model);
                         }
 
                         controller.UpdateView();
