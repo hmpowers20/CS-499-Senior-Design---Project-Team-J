@@ -68,7 +68,7 @@ public class Grazer extends Actor  {
 
 
         if (!danger && food == null && energy < reproduce) {
-            food = (Plant) model.findNearestActor('p',this);
+            food = (Plant) model.findNearestActor(new char[] {'p'},this);
             System.out.println("I'm a grazer and I've found food! It's at: ");
             System.out.println(food.x);
             System.out.println(food.y);

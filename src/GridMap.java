@@ -1,4 +1,5 @@
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import javax.swing.*;
@@ -15,6 +16,8 @@ public class GridMap extends JComponent {
     ImageIcon scaledTileSprites[];
     ImageIcon scaledLifeformSprites[];
 
+    double tileValues[][];
+
     JScrollPane scrollPane;
 
     GridMap(MainGameModel model) throws FileNotFoundException {
@@ -23,18 +26,14 @@ public class GridMap extends JComponent {
 
         setPreferredSize(new Dimension(columns * tileSize / zoomFactor + 1, rows * tileSize / zoomFactor + 1));
 
-        Scanner scanner = new Scanner(new File("resources/mapdesign.csv"));
-        scanner.useDelimiter(",|\\r\\n|\\n");
-
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < columns; j++) {
-                if(scanner.hasNextInt()){
-                    model.map[i][j].terrainType = TerrainType.fromInteger(scanner.nextInt());
-                }
+        PerlinNoise perlin = new PerlinNoise(new java.util.Random().nextInt(),
+                .5, 12.0, 1.0, 6);
+        tileValues = new double[rows][columns];
+        for (int i = 1; i <= rows; i++) {
+            for (int j = 1; j <= columns; j++) {
+                tileValues[i - 1][j - 1] = perlin.getHeight((double)i / rows, (double)j / columns);
             }
         }
-
-        scanner.close();
 
         // Add tiles actors
         ImageIcon grazer = new ImageIcon(new ImageIcon("images/grazer.png").getImage().getScaledInstance(tileSize, tileSize, Image.SCALE_SMOOTH));
@@ -84,22 +83,22 @@ public class GridMap extends JComponent {
 
     void Zoom(int zoomFactor, MainGameModel model)
     {
-        setPreferredSize(new Dimension(columns * tileSize / zoomFactor + 1, rows * tileSize / zoomFactor + 1));
-        this.zoomFactor = zoomFactor;
+        if (zoomFactor != this.zoomFactor) {
+            setPreferredSize(new Dimension(columns * tileSize / zoomFactor + 1, rows * tileSize / zoomFactor + 1));
+            this.zoomFactor = zoomFactor;
 
-        for (int i = 0; i < tileSprites.length; i++)
-        {
-            scaledTileSprites[i] = new ImageIcon(tileSprites[i].getImage().getScaledInstance(tileSize / zoomFactor, tileSize / zoomFactor, Image.SCALE_SMOOTH));
+            for (int i = 0; i < tileSprites.length; i++) {
+                scaledTileSprites[i] = new ImageIcon(tileSprites[i].getImage().getScaledInstance(tileSize / zoomFactor, tileSize / zoomFactor, Image.SCALE_SMOOTH));
+            }
+
+            for (int i = 0; i < lifeFormSprites.length; i++) {
+                scaledLifeformSprites[i] = new ImageIcon(lifeFormSprites[i].getImage().getScaledInstance(tileSize / zoomFactor, tileSize / zoomFactor, Image.SCALE_SMOOTH));
+            }
+
+            PaintTiles(model);
+            repaint();
+            revalidate();
         }
-
-        for (int i = 0; i < lifeFormSprites.length; i++)
-        {
-            scaledLifeformSprites[i] = new ImageIcon(lifeFormSprites[i].getImage().getScaledInstance(tileSize / zoomFactor, tileSize / zoomFactor, Image.SCALE_SMOOTH));
-        }
-
-        PaintTiles(model);
-        repaint();
-        revalidate();
     }
 
     void PaintTiles(MainGameModel model)
@@ -108,33 +107,52 @@ public class GridMap extends JComponent {
 
         Rectangle viewRect = scrollPane.getViewport().getViewRect();
 
-        int startCol = (int)Math.floor((double)viewRect.x / (tileSize / zoomFactor));
-        int startRow = (int)Math.floor((double)viewRect.y / (tileSize / zoomFactor));
-        int endCol = (int)Math.ceil((double)(viewRect.x + viewRect.width) / (tileSize / zoomFactor));
-        int endRow = (int)Math.ceil((double)(viewRect.y + viewRect.height) / (tileSize / zoomFactor));
+        double startColExact = (double)viewRect.x / (tileSize / zoomFactor);
+        double startRowExact = (double)viewRect.y / (tileSize / zoomFactor);
+        double endColExact = (double)(viewRect.x + viewRect.width) / (tileSize / zoomFactor);
+        double endRowExact = (double)(viewRect.y + viewRect.height) / (tileSize / zoomFactor);
+        int startCol = (int)Math.floor(startColExact);
+        int startRow = (int)Math.floor(startRowExact);
+        int endCol = (int)Math.ceil(endColExact);
+        int endRow = (int)Math.ceil(endRowExact);
 
-        for (Actor actor : model.actors)
-        {
-            JLabel actorLabel = new JLabel();
-            actorLabel.setIcon(GetSprite(actor));
-            actorLabel.setBounds(actor.GetIntX() * (tileSize / zoomFactor), actor.GetIntY() * (tileSize / zoomFactor), (tileSize / zoomFactor), (tileSize / zoomFactor));
-            add(actorLabel);
-        }
-
+        BufferedImage render = new BufferedImage(viewRect.width, viewRect.height, BufferedImage.TYPE_INT_RGB);
+        Graphics2D renderGraphics = render.createGraphics();
         for (int i = startRow; i < endRow && i < rows; i++)
         {
             for (int j = startCol; j < endCol && j < columns; j++)
             {
-                JLabel tile = new JLabel();
-                TerrainType terrain = model.map[i][j].terrainType;
-                if (terrain != null)
-                    tile.setIcon(scaledTileSprites[model.map[i][j].terrainType.toInteger()]);
-                else
-                    tile.setIcon(scaledTileSprites[0]);
-                tile.setBounds(j * (tileSize / zoomFactor), i * (tileSize / zoomFactor), (tileSize / zoomFactor), (tileSize / zoomFactor));
-                add(tile);
+                renderGraphics.drawImage(scaledTileSprites[GetTerrainTypeFromNoise(tileValues[i][j]).toInteger()].getImage(),
+                        (int)((j - startColExact) * (tileSize / zoomFactor)),
+                        (int)((i - startRowExact) * (tileSize / zoomFactor)),
+                        tileSize / zoomFactor, tileSize / zoomFactor, null);
             }
         }
+
+        for (Actor actor : model.actors)
+        {
+            if (actor.x >= startCol && actor.x <= endCol &&
+                    actor.y >= startRow && actor.y <= endRow) {
+                renderGraphics.drawImage(GetSprite(actor).getImage(),
+                        (int)((actor.GetIntX() - startColExact) * (tileSize / zoomFactor)),
+                        (int)((actor.GetIntX() - startRowExact) * (tileSize / zoomFactor)),
+                        tileSize / zoomFactor, tileSize / zoomFactor, null);
+            }
+        }
+
+        JLabel map = new JLabel(new ImageIcon(render));
+        map.setBounds(viewRect.x, viewRect.y, viewRect.width, viewRect.height);
+        add(map);
+    }
+
+    public TerrainType GetTerrainTypeFromNoise(double noise)
+    {
+        if (noise < -0.6)
+            return TerrainType.Dirt;
+        else if (noise > 0.6)
+            return TerrainType.Sand;
+        else
+            return TerrainType.Grass;
     }
 
     public ImageIcon GetSprite(Actor actor)

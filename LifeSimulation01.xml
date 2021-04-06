@@ -466,10 +466,10 @@
 		</GRAZER>
 		<GRAZER>
 			<X_POS>
-				760
+				11
 			</X_POS>
 			<Y_POS>
-				710
+				12
 			</Y_POS>
 			<G_ENERGY_LEVEL>
 				75
@@ -520,10 +520,10 @@
 		</P_OFFSPRING_ENERGY>
 		<PREDATOR>
 			<X_POS>
-				275
+				5
 			</X_POS>
 			<Y_POS>
-				125
+				5
 			</Y_POS>
 			<P_ENERGY_LEVEL>
 				450
