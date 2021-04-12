@@ -46,12 +46,14 @@ public class Grazer extends Actor  {
         return;
     }
 
+    //Eats the plant, increases energy level accordingly
     void eat(Plant food) {
         food.eaten();
         energy += (float)energy_input / 60.0;
 
     }
 
+    //Update will determine the grazer's behavior per second of simulation time
     @Override
     public void Update(MainGameModel model) {
 
@@ -145,6 +147,8 @@ public class Grazer extends Actor  {
 
     }
 
+    //Takes the direction to move in (int), the distance to move (float), and the game model
+    //Returns whether or not a theoretical move is both within bounds and not blocked by an obstacle
     boolean checkValidMove(int direction, float distance, MainGameModel model) {
         if (direction == 1) {
             float new_x = x + distance;
@@ -173,6 +177,7 @@ public class Grazer extends Actor  {
         return false;
     }
 
+    //Returns whether or not a grazer is within the radius of the food it's pursuing
     boolean canEat() {
         if (food == null) {
             return false;
@@ -190,6 +195,7 @@ public class Grazer extends Actor  {
     }
 
 
+    //This should be called by the predator when they pursue the grazer
     public void inDanger(int x, int y) {
         //danger = true;
         //The SimMap will activate this function when a grazer is within attack range of a hungry predator
@@ -198,6 +204,7 @@ public class Grazer extends Actor  {
         //Or running by another unsuspecting grazer so that it attacks them instead because that's the sort of behavior we're rewarding I guess
     }
 
+    //Return the current energy level
     public float getEnergy() {
         return energy;
     }
