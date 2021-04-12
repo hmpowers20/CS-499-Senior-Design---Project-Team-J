@@ -145,6 +145,15 @@ public class GridMap extends JComponent {
 
     public ImageIcon GetSprite(Actor actor)
     {
-        return lifeFormSprites[(int)(Math.random() * (lifeFormSprites.length))];
+        if (actor instanceof Predator)
+            return lifeFormSprites[1];
+        else if (actor instanceof Grazer)
+            return lifeFormSprites[0];
+        else if (actor instanceof Plant)
+            return lifeFormSprites[10];
+        else if (actor instanceof Seed)
+            return lifeFormSprites[11];
+        else
+            return lifeFormSprites[6];
     }
 }

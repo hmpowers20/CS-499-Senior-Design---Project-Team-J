@@ -1,6 +1,11 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Hashtable;
 
 
@@ -12,6 +17,8 @@ public class MainGameView extends JComponent
     private static final int ZOOM_MIN = 0;
     private static final int ZOOM_MAX = 3;
     private static final int ZOOM_INIT = ZOOM_MAX;
+
+    private String text = "View Instructions";
 
     GridMap map;
     JSlider zoomSlider;
@@ -67,17 +74,43 @@ public class MainGameView extends JComponent
 
         //*********************************Report Button Display********************************************************
         JPanel reportPanel = new JPanel();
-        reportPanel.setLayout(new BoxLayout(reportPanel, BoxLayout.PAGE_AXIS));
+        reportPanel.setLayout(new BorderLayout());
         reportPanel.setPreferredSize(new Dimension(150, 500));
 
         JButton reportButton = new JButton("REPORT");
         reportButton.setVisible(true);
 
-        JLabel reportLabel = new JLabel("<html>The button above generates a text file detailing the statistics of the virtual world to aid in creating a stable world.</html>");
+        JLabel reportLabel = new JLabel("<html>The button above generates a text file detailing the statistics of the virtual world to aid in creating a stable world.<br><br><br><br>If you want to know more about the simulation or need help, click the link below to access the simulation instructions!</html>");
         reportLabel.setVisible(true);
 
-        reportPanel.add(reportButton);
-        reportPanel.add(reportLabel);
+        JLabel instructions = new JLabel(text);
+
+        //Functionality for the hyperlink to the instructions
+        instructions.setForeground(Color.BLUE.darker());
+        instructions.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+        instructions.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e){
+                try{
+                    Desktop.getDesktop().browse(new URI("https://adayinthelife-dinosaurs.github.io/"));//Add website url here
+                } catch (IOException | URISyntaxException event1){
+                    event1.printStackTrace();
+                }
+            }
+            @Override
+            public void mouseExited(MouseEvent event){
+                instructions.setText(text);
+            }
+            @Override
+            public void mouseEntered(MouseEvent event){
+                instructions.setText("<html><a href=''>" + text + "</a></html>");
+            }
+        });
+
+        reportPanel.add(reportButton, BorderLayout.PAGE_START);
+        reportPanel.add(reportLabel, BorderLayout.CENTER);
+        reportPanel.add(instructions, BorderLayout.PAGE_END);
         guiPanel.add(reportPanel, BorderLayout.WEST);
         //**********************************End Report Button Display***************************************************
 
