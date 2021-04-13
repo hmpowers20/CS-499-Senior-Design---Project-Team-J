@@ -1,3 +1,5 @@
+import com.sun.tools.javac.Main;
+
 import java.util.Random;
 
 public class Grazer extends Actor  {
@@ -47,10 +49,9 @@ public class Grazer extends Actor  {
     }
 
     //Eats the plant, increases energy level accordingly
-    void eat(Plant food) {
-        food.eaten();
+    void eat(MainGameModel model, Plant food) {
+        model.actorsToRemove.add(food);
         energy += (float)energy_input / 60.0;
-
     }
 
     //Update will determine the grazer's behavior per second of simulation time
@@ -80,10 +81,8 @@ public class Grazer extends Actor  {
 
             //If we're not in danger and already have access to food, eat the food
             else if (!danger && food != null && canEat()) {
-                eat(food);
-                if (!food.edible) {
-                    food = null;
-                }
+                eat(model, food);
+                food = null;
                 return;
             }
 

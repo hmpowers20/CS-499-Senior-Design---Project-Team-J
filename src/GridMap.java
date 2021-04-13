@@ -38,17 +38,15 @@ public class GridMap extends JComponent {
         ImageIcon AApredator = new ImageIcon(new ImageIcon("images/AAPredator.png").getImage().getScaledInstance(tileSize, tileSize, Image.SCALE_SMOOTH));
         ImageIcon FFpredator = new ImageIcon(new ImageIcon("images/FFPredator.png").getImage().getScaledInstance(tileSize, tileSize, Image.SCALE_SMOOTH));
         ImageIcon SSpredator = new ImageIcon(new ImageIcon("images/SSPredator.png").getImage().getScaledInstance(tileSize, tileSize, Image.SCALE_SMOOTH));
-        ImageIcon OtherPredator = new ImageIcon(new ImageIcon("images/OtherPredator.png").getImage().getScaledInstance(tileSize, tileSize, Image.SCALE_SMOOTH));
         ImageIcon grazerOffspring = new ImageIcon(new ImageIcon("images/grazerOffspring.png").getImage().getScaledInstance(tileSize, tileSize, Image.SCALE_SMOOTH));
-        ImageIcon log = new ImageIcon(new ImageIcon("images/Log.png").getImage().getScaledInstance(tileSize, tileSize, Image.SCALE_SMOOTH));
         ImageIcon boulder = new ImageIcon(new ImageIcon("images/boulder.png").getImage().getScaledInstance(tileSize, tileSize, Image.SCALE_SMOOTH));
-        ImageIcon pileOfRocks = new ImageIcon(new ImageIcon("images/RockPile.png").getImage().getScaledInstance(tileSize, tileSize, Image.SCALE_SMOOTH));
         ImageIcon otherPredatorOffspring = new ImageIcon(new ImageIcon("images/OtherPredatorOffspring.png").getImage().getScaledInstance(tileSize, tileSize, Image.SCALE_SMOOTH));
         ImageIcon plant1 = new ImageIcon(new ImageIcon("images/plant1.png").getImage().getScaledInstance(tileSize, tileSize, Image.SCALE_SMOOTH));
         ImageIcon plant2 = new ImageIcon(new ImageIcon("images/plant2.png").getImage().getScaledInstance(tileSize, tileSize, Image.SCALE_SMOOTH));
         ImageIcon plant3 = new ImageIcon(new ImageIcon("images/plant3.png").getImage().getScaledInstance(tileSize, tileSize, Image.SCALE_SMOOTH));
+        ImageIcon seed = new ImageIcon(new ImageIcon("images/seed.png").getImage().getScaledInstance(tileSize, tileSize, Image.SCALE_SMOOTH));
 
-        lifeFormSprites = new ImageIcon[] { grazer, AApredator, FFpredator, SSpredator, OtherPredator, grazerOffspring, log, boulder, pileOfRocks, otherPredatorOffspring, plant1, plant2, plant3 };
+        lifeFormSprites = new ImageIcon[] { grazer, AApredator, FFpredator, SSpredator, grazerOffspring, boulder, otherPredatorOffspring, plant1, plant2, plant3, seed };
 
         // Add tiles
         ImageIcon grassTileImage = new ImageIcon(new ImageIcon("images/grass.png").getImage().getScaledInstance(tileSize, tileSize,  Image.SCALE_SMOOTH));
@@ -146,14 +144,30 @@ public class GridMap extends JComponent {
     public ImageIcon GetSprite(Actor actor)
     {
         if (actor instanceof Predator)
-            return lifeFormSprites[1];
+        {
+            Predator pred = (Predator)actor;
+            if (pred.genotype.aggression == Predator.Aggression.Most)
+                return lifeFormSprites[1];
+            else if (pred.genotype.aggression == Predator.Aggression.Most)
+                return lifeFormSprites[2];
+            else
+                return lifeFormSprites[3];
+        }
         else if (actor instanceof Grazer)
             return lifeFormSprites[0];
         else if (actor instanceof Plant)
-            return lifeFormSprites[10];
+        {
+            Plant plant = (Plant)actor;
+            if (plant.radius < 20)
+                return lifeFormSprites[7];
+            else if (plant.radius < 100)
+                return lifeFormSprites[8];
+            else
+                return lifeFormSprites[9];
+        }
         else if (actor instanceof Seed)
-            return lifeFormSprites[11];
+            return lifeFormSprites[10];
         else
-            return lifeFormSprites[6];
+            return lifeFormSprites[5];
     }
 }

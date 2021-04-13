@@ -130,7 +130,7 @@ class MainGameModel {
             if (otherActor != actorToExclude)
             {
                 for (char finding : findings) {
-                    if (finding == 'p' && otherActor instanceof Plant && ((Plant) otherActor).edible || //The edible stuff will probably be tweaked
+                    if (finding == 'p' && otherActor instanceof Plant || //The edible stuff will probably be tweaked
                             finding == 'g' && otherActor instanceof Grazer ||
                             finding == 'P' && otherActor instanceof Predator) {
                         double distance = Math.sqrt(Math.pow(x - otherActor.x, 2) + Math.pow(y - otherActor.y, 2));

@@ -2,8 +2,6 @@ public class Plant extends Actor  {
     int maxSeeds, maxSeedDistance, max_size;
     float viability, rate;
     float radius;
-    boolean edible = true; //This is just sort of a hack to allow the plant to be eaten without out the exact mechanics
-    int counter = 60; //This too
 
     public Plant(float rate, int diameter, int max_size, int maxSeeds, int maxSeedDistance, float viability, float x, float y) {
         this.rate = rate;
@@ -19,18 +17,9 @@ public class Plant extends Actor  {
     @Override
     public void Update(MainGameModel model) {
         if (radius < max_size) {
-            radius += rate / 60;
+            radius += (rate * max_size) / 60;
+            radius = Math.min(radius, max_size);
         }
-    }
-
-    public void eaten() {
-        if (counter < 60) {
-            counter++;
-        }
-        else {
-            edible = false;
-        }
-
     }
 
     void spawn() {
@@ -38,9 +27,5 @@ public class Plant extends Actor  {
         //Do code here that generates a random number of seeds <= maxSeeds
         //They appear at a distance <= maxSeedDistance
         //seed = new Seed(rate, radius, maxSeeds, maxSeedDistance, viability);
-    }
-
-    float getEnergy() {
-        return energy;
     }
 }
