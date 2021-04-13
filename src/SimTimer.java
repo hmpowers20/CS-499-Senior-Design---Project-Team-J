@@ -19,6 +19,10 @@ public class SimTimer {
                             actor.Update(model);
                         }
 
+                        for (Actor actor : model.actorsToRemove)
+                            model.actors.remove(actor);
+                        model.actorsToRemove.clear();
+
                         controller.UpdateView();
 
                         long endTime = System.currentTimeMillis();

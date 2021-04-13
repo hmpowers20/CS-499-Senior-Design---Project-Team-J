@@ -2,9 +2,11 @@ import com.sun.tools.javac.Main;
 
 import java.awt.*;
 import java.util.List;
+import java.util.Random;
 
 public class Predator extends Actor {
     public final int FoodRange = 150;
+    public final int SmellRange = 25;
 
     final float speed_hod, speed_hed, speed_hor;
     final Genotype genotype;
@@ -67,6 +69,8 @@ public class Predator extends Actor {
 
         speed /= 60; // per second
         speed -= Math.max(timeSpentPursuing - maintain * 60, 0) / 15;
+        if (speed == 0)
+            timeSpentPursuing = 0;
 
         return speed;
     }
@@ -79,14 +83,22 @@ public class Predator extends Actor {
         {
             if ((genotype.aggression == Aggression.Most && mating == false)) {
                 pursuing = model.findNearestActor(new char[]{'P', 'g'}, location.x, location.y, FoodRange, this);
+                if (pursuing == null)
+                    pursuing = model.findNearestActor(new char[]{'P', 'g'}, location.x, location.y, SmellRange, this, true);
             }
             else if (genotype.aggression == Aggression.Moderate && hungry == true) {
                 pursuing = model.findNearestActor(new char[] {'g'}, location.x, location.y, FoodRange, this);
                 if (pursuing == null)
+                    pursuing = model.findNearestActor(new char[]{'g'}, location.x, location.y, SmellRange, this, true);
+                if (pursuing == null)
                     pursuing = model.findNearestActor(new char[] {'P'}, location.x, location.y, FoodRange, this);
+                if (pursuing == null)
+                    pursuing = model.findNearestActor(new char[]{'P'}, location.x, location.y, SmellRange, this, true);
             }
             else if (genotype.aggression == Aggression.None && hungry == true) {
                 pursuing = model.findNearestActor(new char[] {'g'}, location.x, location.y, FoodRange, this);
+                if (pursuing == null)
+                    pursuing = model.findNearestActor(new char[]{'g'}, location.x, location.y, SmellRange, this, true);
             }
         }
 
@@ -94,6 +106,10 @@ public class Predator extends Actor {
         {
             MoveToward(model, pursuing);
             timeSpentPursuing++;
+
+            if (GetIntX() == pursuing.GetIntX() && GetIntY() == pursuing.GetIntY())
+                if (Eat(model, pursuing))
+                    pursuing = null;
         }
     }
 
@@ -106,7 +122,9 @@ public class Predator extends Actor {
     public void MoveToward(MainGameModel model, Point moveLoc)
     {
         Point direction = new Point(moveLoc.x - GetIntX(), moveLoc.y - GetIntY());
-        model.moveActor(this, GetSpeed(), direction);
+        float speed = GetSpeed();
+        energy -= energy_output * speed / 5;
+        model.moveActor(this, speed, direction);
     }
 
     public Genotype GetGenotype(String genotypeString) {
@@ -166,13 +184,90 @@ public class Predator extends Actor {
         this.parent = parent;
     }
 
-    public void Eat(Actor actor)
+    public boolean Eat(MainGameModel model, Actor actor)
     {
         if (actor instanceof Seed || actor instanceof Obstacle || actor instanceof Plant)
         {
-            return;
+            return false;
         }
 
+        if (Math.random() < GetEatChance(actor))
+        {
+            if (actor instanceof Predator)
+            {
+                Predator pred = (Predator)actor;
+                if (genotype.strength == pred.genotype.strength && Math.random() < 0.5)
+                {
+                    //Other predator won the fight
+                    pred.EatSuccess(model, this);
+                    return false;
+                }
+            }
+
+            EatSuccess(model, actor);
+            return true;
+        }
+        return false;
+    }
+
+    private void EatSuccess(MainGameModel model, Actor actor)
+    {
         energy += .9f * actor.energy;
+        model.actorsToRemove.add(actor);
+    }
+
+    public double GetEatChance(Actor actor)
+    {
+        if (genotype.strength == Strength.Strong)
+        {
+            if (actor instanceof Grazer)
+            {
+                return 0.95;
+            }
+            else
+            {
+                Predator pred = (Predator)actor;
+                if (pred.genotype.strength == Strength.Strong)
+                    return 0.5;
+                else if (pred.genotype.strength == Strength.Moderate)
+                    return 0.75;
+                else
+                    return 0.95;
+            }
+        }
+        else if (genotype.strength == Strength.Moderate)
+        {
+            if (actor instanceof Grazer)
+            {
+                return 0.75;
+            }
+            else
+            {
+                Predator pred = (Predator)actor;
+                if (pred.genotype.strength == Strength.Strong)
+                    return 0.25;
+                else if (pred.genotype.strength == Strength.Moderate)
+                    return 0.5;
+                else
+                    return 0.75;
+            }
+        }
+        else
+        {
+            if (actor instanceof Grazer)
+            {
+                return 0.5;
+            }
+            else
+            {
+                Predator pred = (Predator)actor;
+                if (pred.genotype.strength == Strength.Strong)
+                    return 0.05;
+                else if (pred.genotype.strength == Strength.Moderate)
+                    return 0.25;
+                else
+                    return 0.5;
+            }
+        }
     }
 }

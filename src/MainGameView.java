@@ -25,7 +25,7 @@ public class MainGameView extends JComponent
     TimePanel timer;
 
     public MainGameView(MainGameModel model) {
-        JFrame window = new JFrame("Life Simulator");   // create the window JFrame
+        JFrame window = new JFrame("A Day in the Life: Dinosaurs");   // create the window JFrame
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  // ensure that the window closes completely when exited
 
         window.setResizable(false);     // Resizable is set to false so the user is prevented from changing the size of the JFrame.

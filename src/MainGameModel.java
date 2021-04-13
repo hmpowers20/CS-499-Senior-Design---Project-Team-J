@@ -24,6 +24,8 @@ class MainGameModel {
     public boolean active = false;
     public int numSeconds;
 
+    public java.util.List<Actor> actorsToRemove = new ArrayList<>();
+
     MainGameModel() {
         initialize();
     }
@@ -109,37 +111,17 @@ class MainGameModel {
     }
 
     //Return location of nearest specified type of actor
-    public Actor findNearestActor(char[] finding, Actor actor, Actor actorToExclude) {
-        return findNearestActor(finding, actor.GetIntX(), actor.GetIntY(), Integer.MAX_VALUE, actorToExclude);
-    }
-
-    //Return location of nearest specified type of actor
-    public Actor findNearestActor(char[] finding, Actor actor, int range) {
-        return findNearestActor(finding, actor.GetIntX(), actor.GetIntY(), range);
-    }
-
-    //Return location of nearest specified type of actor
-    public Actor findNearestActor(char[] finding, Actor actor, int range, Actor actorToExclude) {
-        return findNearestActor(finding, actor.GetIntX(), actor.GetIntY(), range, actorToExclude);
-    }
-
-    //Return location of nearest specified type of actor
-    public Actor findNearestActor(char[] finding, int x, int y) {
-        return findNearestActor(finding, x, y, Integer.MAX_VALUE);
-    }
-
-    //Return location of nearest specified type of actor
-    public Actor findNearestActor(char[] finding, int x, int y, Actor actorToExclude) {
-        return findNearestActor(finding, x, y, Integer.MAX_VALUE, actorToExclude);
-    }
-
-    //Return location of nearest specified type of actor
     public Actor findNearestActor(char[] findings, int x, int y, int range) {
         return findNearestActor(findings, x, y, range, null);
     }
 
     //Return location of nearest specified type of actor
     public Actor findNearestActor(char[] findings, int x, int y, int range, Actor actorToExclude) {
+        return findNearestActor(findings, x, y, range, actorToExclude, false);
+    }
+
+    //Return location of nearest specified type of actor
+    public Actor findNearestActor(char[] findings, int x, int y, int range, Actor actorToExclude, boolean ignoreObstacles) {
         double minDist = Double.POSITIVE_INFINITY;
         Actor minDistActor = null;
 
@@ -152,7 +134,8 @@ class MainGameModel {
                             finding == 'g' && otherActor instanceof Grazer ||
                             finding == 'P' && otherActor instanceof Predator) {
                         double distance = Math.sqrt(Math.pow(x - otherActor.x, 2) + Math.pow(y - otherActor.y, 2));
-                        if (distance < minDist && distance <= range && !obstacleBetween(x, y, otherActor.GetIntX(), otherActor.GetIntY())) {
+                        if (distance < minDist && distance <= range &&
+                                (ignoreObstacles || !obstacleBetween(x, y, otherActor.GetIntX(), otherActor.GetIntY()))) {
                             minDist = distance;
                             minDistActor = otherActor;
                         }
