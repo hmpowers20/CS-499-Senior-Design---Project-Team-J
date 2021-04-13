@@ -1,4 +1,7 @@
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class Grazer extends Actor  {
     int energy_input; //Amount of energy gained per minute while eating (is that really the best way to do that? Seems odd to be but idk)
@@ -8,6 +11,7 @@ public class Grazer extends Actor  {
     float speed; //Max speed
     boolean danger;
     Plant food;
+    boolean running = false;
 
     public Grazer(float speed, float energy, int energy_input, int energy_output, int reproduce, float maintain, float x, float y) {
         this.energy = energy;
@@ -56,91 +60,99 @@ public class Grazer extends Actor  {
     //Update will determine the grazer's behavior per second of simulation time
     @Override
     public void Update(MainGameModel model) {
+        if (running) {
+            return;
+        }
+        running = true;
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.submit(() -> {
+            String threadName = Thread.currentThread().getName();
+            while (true) {
+                if (energy <= 0) {
+                    //We die
+                    //model.removeActor(this);
+                    //return;
+                }
 
-            if (energy <= 0) {
-                //We die
-                //model.removeActor(this);
-                //return;
-            }
-
-            //If we're not in danger and don't have food already and aren't spawning offspring, find food
+                //If we're not in danger and don't have food already and aren't spawning offspring, find food
 
 
-            if (!danger && food == null && energy < reproduce) {
-                if (model.findNearestActor(new char[]{'p'}, this) == null) {
-                    food = null;
+                if (!danger && food == null && energy < reproduce) {
+                    if (model.findNearestActor(new char[]{'p'}, this) == null) {
+                        food = null;
+                    } else {
+                        food = (Plant) model.findNearestActor(new char[]{'p'}, this);
+                    }
+
+                }
+
+                //If we're not in danger and already have access to food, eat the food
+                else if (!danger && food != null && canEat()) {
+                    eat(food);
+                    if (!food.edible) {
+                        food = null;
+                    }
+                    return;
+                }
+
+                //If we are in danger, run
+                else if (danger) {
+                    //Running away
+                    return;
+                }
+
+                //If we're not in danger and have the energy, reproduce
+                else if (!danger && energy >= reproduce) {
+                    //Grazer offspring = new Grazer(speed, energy, energy_input, energy_output, reproduce, maintain, x, y);
+                    //model.addActor(offspring);
+                    return;
+                }
+
+                int dir1 = 0, dir2 = 0;
+                float distance = speed / 60;
+
+                if (food == null) { //Generate a random direction to move if we still don't have one
+                    Random rand = new Random();
+                    dir1 = rand.nextInt(4) + 1;
+
                 } else {
-                    food = (Plant) model.findNearestActor(new char[]{'p'}, this);
-                    System.out.println("Found food: ");
-                    System.out.println(food.x);
-                    System.out.println(food.y);
+                    if (x < food.x - food.radius) {
+                        dir1 = 1;
+                    } else if (food.x + food.radius < x) {
+                        dir1 = 3;
+                    }
+                    if (food.y + food.radius < y) {
+                        dir2 = 2;
+                    } else if (food.y - food.radius > y) {
+                        dir2 = 4;
+                    }
+
                 }
 
-            }
-
-            //If we're not in danger and already have access to food, eat the food
-            else if (!danger && food != null && canEat()) {
-                eat(food);
-                if (!food.edible) {
-                    food = null;
-                }
-                return;
-            }
-
-            //If we are in danger, run
-            else if (danger) {
-                //Running away
-                return;
-            }
-
-            //If we're not in danger and have the energy, reproduce
-            else if (!danger && energy >= reproduce) {
-                //Grazer offspring = new Grazer(speed, energy, energy_input, energy_output, reproduce, maintain, x, y);
-                //model.addActor(offspring);
-                return;
-            }
-
-            int dir1 = 0, dir2 = 0;
-            float distance = speed / 60;
-
-            if (food == null) { //Generate a random direction to move if we still don't have one
-                Random rand = new Random();
-                dir1 = rand.nextInt(4) + 1;
-
-            } else {
-                if (x < food.x - food.radius) {
-                    dir1 = 1;
-                } else if (food.x + food.radius < x) {
-                    dir1 = 3;
-                }
-                if (food.y + food.radius < y) {
-                    dir2 = 2;
-                } else if (food.y - food.radius > y) {
-                    dir2 = 4;
+                // Motion logic
+                if (dir1 > 0) {
+                    if (checkValidMove(dir1, distance, model)) {
+                        move(dir1, distance, model);
+                        return;
+                    }
+                } else if (dir2 > 0) {
+                    if (checkValidMove(dir2, distance, model)) {
+                        move(dir2, distance, model);
+                        return;
+                    }
                 }
 
-            }
-
-            // Motion logic
-            if (dir1 > 0) {
+                //We should only get here if we've attempted a move that was invalid, or I screwed something up
+                //Gonna generate one more random move for us and if it doesn't work we just move on and our grazer sits this one out
+                Random random = new Random();
+                dir1 = random.nextInt(4) + 1;
                 if (checkValidMove(dir1, distance, model)) {
                     move(dir1, distance, model);
-                    return;
                 }
-            } else if (dir2 > 0) {
-                if (checkValidMove(dir2, distance, model)) {
-                    move(dir2, distance, model);
-                    return;
-                }
-            }
 
-            //We should only get here if we've attempted a move that was invalid, or I screwed something up
-            //Gonna generate one more random move for us and if it doesn't work we just move on and our grazer sits this one out
-            Random random = new Random();
-            dir1 = random.nextInt(4) + 1;
-            if (checkValidMove(dir1, distance, model)) {
-                move(dir1, distance, model);
+
             }
+        });
 
 
             return;
