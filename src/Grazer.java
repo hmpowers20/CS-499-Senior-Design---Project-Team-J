@@ -95,7 +95,7 @@ public class Grazer extends Actor  {
             //If we're not in danger and have the energy, reproduce
             else if (!danger && energy >= reproduce) {
                 //Grazer offspring = new Grazer(speed, energy, energy_input, energy_output, reproduce, maintain, x, y);
-                //model.addActor(offspring);
+                //model.actorsToAdd.add(offspring);
                 return;
             }
 

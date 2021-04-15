@@ -23,6 +23,10 @@ public class SimTimer {
                             model.actors.remove(actor);
                         model.actorsToRemove.clear();
 
+                        for (Actor actor : model.actorsToAdd)
+                            model.actors.add(actor);
+                        model.actorsToAdd.clear();
+
                         controller.UpdateView();
 
                         long endTime = System.currentTimeMillis();

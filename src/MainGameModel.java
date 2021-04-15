@@ -25,6 +25,7 @@ class MainGameModel {
     public int numSeconds;
 
     public java.util.List<Actor> actorsToRemove = new ArrayList<>();
+    public java.util.List<Actor> actorsToAdd = new ArrayList<>();
 
     MainGameModel() {
         initialize();
@@ -77,19 +78,26 @@ class MainGameModel {
 
     public void moveActor(Actor actor, float moveDistance, Point direction)
     {
-        // normalize direction
-        double directionMagnitude = Math.sqrt(direction.x*direction.x + direction.y*direction.y);
+        Point2D.Double movement = GetTransform(moveDistance, direction);
+
+        actor.x += movement.x;
+        actor.x = Math.min(Math.max(actor.x, 0), width - 1);
+        actor.y += movement.y;
+        actor.y = Math.min(Math.max(actor.y, 0), height - 1);
+    }
+
+    public static Point2D.Double GetTransform(float moveDistance, Point direction)
+    {
+        double directionMagnitude = Math.sqrt((double)direction.x*direction.x + (double)direction.y*direction.y);
         if (directionMagnitude >= .01 || directionMagnitude <= -.01) {
             Point2D.Double normalizedDirection = new Point2D.Double(direction.x / directionMagnitude,
                     direction.y / directionMagnitude);
 
             // Get x and y to transform actor
-            Point2D.Double movement = new Point2D.Double(normalizedDirection.x * moveDistance,
+            return new Point2D.Double(normalizedDirection.x * moveDistance,
                     normalizedDirection.y * moveDistance);
-
-            actor.x += movement.x;
-            actor.y += movement.y;
         }
+        return new Point2D.Double(0, 0);
     }
 
     //Calculate distance between two points, we can rewrite this if we upgrade from rooks to queens
@@ -130,7 +138,7 @@ class MainGameModel {
             if (otherActor != actorToExclude)
             {
                 for (char finding : findings) {
-                    if (finding == 'p' && otherActor instanceof Plant || //The edible stuff will probably be tweaked
+                    if (finding == 'p' && otherActor instanceof Plant ||
                             finding == 'g' && otherActor instanceof Grazer ||
                             finding == 'P' && otherActor instanceof Predator) {
                         double distance = Math.sqrt(Math.pow(x - otherActor.x, 2) + Math.pow(y - otherActor.y, 2));

@@ -1,19 +1,32 @@
 public class Seed extends Actor  {
-    int radius, maxSeeds, maxSeedDistance;
+    int max_size, maxSeeds, maxSeedDistance;
     float rate, viability;
 
-    public Seed(float rate, int radius, int maxSeeds, int maxSeedDistance, float viability) {
+    int germinateTimer = 0;
+
+    public Seed(float rate, int max_size, int maxSeeds, int maxSeedDistance, float viability, float x, float y) {
         //All of these are just to pass on to the plant offspring. Is there a better way to do that? Probably.
         this.rate = rate;
-        this.radius = radius;
+        this.max_size = max_size;
         this.maxSeeds = maxSeeds;
         this.viability = viability;
         this.maxSeedDistance = maxSeedDistance;
+        this.x = x;
+        this.y = y;
     }
 
     @Override
     public void Update(MainGameModel model) {
-
+        germinateTimer++;
+        if (germinateTimer >= 10)
+        {
+            model.actorsToRemove.add(this);
+            if (Math.random() < viability)
+            {
+                Plant plant = new Plant(rate, .02f, max_size, maxSeeds, maxSeedDistance, viability, x, y);
+                model.actorsToAdd.add(plant);
+            }
+        }
     }
 
     void generate() {

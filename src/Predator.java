@@ -1,11 +1,9 @@
-import com.sun.tools.javac.Main;
-
 import java.awt.*;
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class Predator extends Actor {
-    public final int FoodRange = 150;
+    public final int SightRange = 150;
     public final int SmellRange = 25;
 
     final float speed_hod, speed_hed, speed_hor;
@@ -18,12 +16,14 @@ public class Predator extends Actor {
     final int in_energy; //Starting level of energy is inherited by offspring
     final int e_offspring; //Initial energy level for offspring
 
-    Actor[] offspring; //Keep track of the offspring so that the predator knows to ignore them
+    java.util.List<Actor> offspring = new ArrayList<>(); //Keep track of the offspring so that the predator knows to ignore them
     Actor pursuing = null;
     boolean hungry;
     boolean mating;
+    Predator partner;
     Actor parent; //null for first-generation dinosaurs, be sure to update offspring with parent
     int timeSpentPursuing = 0;
+    int currentGestation = 0;
 
     public enum Aggression { Most, Moderate, None }
 
@@ -77,29 +77,34 @@ public class Predator extends Actor {
 
     @Override
     public void Update(MainGameModel model) {
-        Point location = model.FindTileWithActor(this);
+        if (partner != null)
+        {
+            currentGestation++;
+            if (currentGestation >= gestation * 60)
+            {
+                int numOffspring = new Random().nextInt(maxOffspring) + 1;
+                for (int i = 0; i < numOffspring; i++)
+                {
+                    Predator child = new Predator(speed_hod, speed_hed, speed_hor, e_offspring, energy_output,
+                            gestation, Mendel(partner), maintain, reproduce, maxOffspring, e_offspring, x, y);
+                    child.parent = this;
+                    model.actorsToAdd.add(child);
+                    offspring.add(child);
+                }
+
+                currentGestation = 0;
+                partner = null;
+            }
+        }
+
+        if (energy >= reproduce && partner == null)
+        {
+            mating = true;
+        }
 
         if (pursuing == null)
         {
-            if ((genotype.aggression == Aggression.Most && mating == false)) {
-                pursuing = model.findNearestActor(new char[]{'P', 'g'}, location.x, location.y, FoodRange, this);
-                if (pursuing == null)
-                    pursuing = model.findNearestActor(new char[]{'P', 'g'}, location.x, location.y, SmellRange, this, true);
-            }
-            else if (genotype.aggression == Aggression.Moderate && hungry == true) {
-                pursuing = model.findNearestActor(new char[] {'g'}, location.x, location.y, FoodRange, this);
-                if (pursuing == null)
-                    pursuing = model.findNearestActor(new char[]{'g'}, location.x, location.y, SmellRange, this, true);
-                if (pursuing == null)
-                    pursuing = model.findNearestActor(new char[] {'P'}, location.x, location.y, FoodRange, this);
-                if (pursuing == null)
-                    pursuing = model.findNearestActor(new char[]{'P'}, location.x, location.y, SmellRange, this, true);
-            }
-            else if (genotype.aggression == Aggression.None && hungry == true) {
-                pursuing = model.findNearestActor(new char[] {'g'}, location.x, location.y, FoodRange, this);
-                if (pursuing == null)
-                    pursuing = model.findNearestActor(new char[]{'g'}, location.x, location.y, SmellRange, this, true);
-            }
+            pursuing = GetTarget(model);
         }
 
         if (pursuing != null)
@@ -108,9 +113,106 @@ public class Predator extends Actor {
             timeSpentPursuing++;
 
             if (GetIntX() == pursuing.GetIntX() && GetIntY() == pursuing.GetIntY())
-                if (Eat(model, pursuing))
-                    pursuing = null;
+            {
+                if (mating && pursuing instanceof Predator)
+                {
+                    Predator pred = (Predator)pursuing;
+                    partner = pred;
+                    pred.partner = this;
+                }
+                else
+                {
+                    if (Eat(model, pursuing))
+                        pursuing = null;
+                }
+            }
         }
+    }
+
+    public String Mendel(Predator other)
+    {
+        String ret = "";
+
+        if (genotype.aggression == Aggression.Most)
+            ret += "A";
+        else if (genotype.aggression == Aggression.None)
+            ret += "a";
+        else
+            ret += Math.random() < .5 ? "A" : "a";
+
+        if (other.genotype.aggression == Aggression.Most)
+            ret += "A";
+        else if (other.genotype.aggression == Aggression.None)
+            ret += "a";
+        else
+            ret += Math.random() < .5 ? "A" : "a";
+
+        ret += " ";
+
+        if (genotype.strength == Strength.Strong)
+            ret += "S";
+        else if (genotype.strength == Strength.Moderate)
+            ret += "s";
+        else
+            ret += Math.random() < .5 ? "S" : "s";
+
+        if (other.genotype.strength == Strength.Strong)
+            ret += "S";
+        else if (other.genotype.strength == Strength.Moderate)
+            ret += "s";
+        else
+            ret += Math.random() < .5 ? "S" : "s";
+
+        ret += " ";
+
+        if (genotype.speed == Speed.Fast)
+            ret += "F";
+        else if (genotype.speed == Speed.Moderate)
+            ret += "f";
+        else
+            ret += Math.random() < .5 ? "F" : "f";
+
+        if (other.genotype.speed == Speed.Fast)
+            ret += "F";
+        else if (other.genotype.speed == Speed.Moderate)
+            ret += "f";
+        else
+            ret += Math.random() < .5 ? "F" : "f";
+
+        return ret;
+    }
+
+    public Actor GetTarget(MainGameModel model)
+    {
+        Actor ret = null;
+
+        if (mating)
+        {
+            ret = model.findNearestActor(new char[]{'P'}, GetIntX(), GetIntY(), SightRange, this);
+            if (ret == null)
+                ret = model.findNearestActor(new char[]{'P'}, GetIntX(), GetIntY(), SmellRange, this, true);
+        }
+        else if ((genotype.aggression == Aggression.Most)) {
+            ret = model.findNearestActor(new char[]{'P', 'g'}, GetIntX(), GetIntY(), SightRange, this);
+            if (ret == null)
+                ret = model.findNearestActor(new char[]{'P', 'g'}, GetIntX(), GetIntY(), SmellRange, this, true);
+        }
+        else if (genotype.aggression == Aggression.Moderate && hungry) {
+            ret = model.findNearestActor(new char[] {'g'}, GetIntX(), GetIntY(), SightRange, this);
+            if (ret == null)
+                ret = model.findNearestActor(new char[]{'g'}, GetIntX(), GetIntY(), SmellRange, this, true);
+            if (ret == null)
+                ret = model.findNearestActor(new char[] {'P'}, GetIntX(), GetIntY(), SightRange, this);
+            if (ret == null)
+                ret = model.findNearestActor(new char[]{'P'}, GetIntX(), GetIntY(), SmellRange, this, true);
+        }
+        else if (genotype.aggression == Aggression.None && hungry) {
+            ret = model.findNearestActor(new char[] {'g'}, GetIntX(), GetIntY(), SightRange, this);
+            if (ret == null)
+                ret = model.findNearestActor(new char[]{'g'}, GetIntX(), GetIntY(), SmellRange, this, true);
+        }
+
+        return ret;
     }
 
     public void MoveToward(MainGameModel model, Actor actor)
