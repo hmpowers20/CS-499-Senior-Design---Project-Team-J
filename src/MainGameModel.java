@@ -13,6 +13,7 @@ import javax.xml.xpath.XPathFactory;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -180,6 +181,80 @@ class MainGameModel {
 
     public void start() {
         active = true;
+    }
+
+    public void report() throws IOException {
+        String filename;
+        int total = numSeconds;
+        int day = total / 86400;
+        total = total - day * 86400;
+        int hrs = total / 3600;
+        total = total - hrs * 3600;
+        int min = total / 60;
+        total = total - min * 60;
+        int sec = total;
+        String str_hours = Integer.toString(hrs);
+        String str_min = Integer.toString(min);
+        String str_sec = Integer.toString(sec);
+        if (hrs < 10) {
+            str_hours = "0" + str_hours;
+        }
+        if (min < 10) {
+            str_min = "0" + str_min;
+        }
+        if (sec < 10) {
+            str_sec = "0" + str_sec;
+        }
+        filename = "SimReport_" + str_hours + ":" + str_min + ":" + str_sec;
+        FileWriter writer = null;
+        try {
+            writer = new FileWriter(filename);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        writer.write("CURRENT STATS\n\n");
+        String num_str = Integer.toString(getNumPredators());
+        writer.write("Number of predators: "+num_str+"\n");
+        num_str = Integer.toString(getNumGrazers());
+        writer.write("Number of grazers: "+num_str+"\n");
+        num_str = Integer.toString(getNumPlants());
+        writer.write("Number of plants: "+num_str+"\n\n");
+
+        //Predator states
+        int counter = 0;
+        for (Actor actor : actors) {
+            if (actor instanceof Predator) {
+                counter++;
+                String str_x = Float.toString(actor.x);
+                String str_y = Float.toString(actor.y);
+                String str_counter = Integer.toString(counter);
+                writer.write("Predator "+str_counter+": "+str_x+","+str_y+"\n");
+            }
+        }
+        counter = 0;
+        writer.write("\n");
+        for (Actor actor : actors) {
+            if (actor instanceof Grazer) {
+                counter++;
+                String str_x = Float.toString(actor.x);
+                String str_y = Float.toString(actor.y);
+                String str_counter = Integer.toString(counter);
+                writer.write("Grazer "+str_counter+": "+str_x+","+str_y+"\n");
+            }
+        }
+        counter = 0;
+        writer.write("\n");
+        for (Actor actor : actors) {
+            if (actor instanceof Plant) {
+                counter++;
+                String str_x = Float.toString(actor.x);
+                String str_y = Float.toString(actor.y);
+                String str_counter = Integer.toString(counter);
+                writer.write("Plant "+str_counter+": "+str_x+","+str_y+"\n");
+            }
+        }
+        writer.close();
     }
 
     public int getNumGrazers() {
