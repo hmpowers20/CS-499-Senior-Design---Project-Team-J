@@ -79,6 +79,13 @@ public class MainGameView extends JComponent
 
         JButton reportButton = new JButton("REPORT");
         reportButton.setVisible(true);
+        reportButton.addActionListener(e -> {
+            try {
+                model.report();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        });
 
         JLabel reportLabel = new JLabel("<html>The button above generates a text file detailing the statistics of the virtual world to aid in creating a stable world.<br><br><br><br>If you want to know more about the simulation or need help, click the link below to access the simulation instructions!</html>");
         reportLabel.setVisible(true);
