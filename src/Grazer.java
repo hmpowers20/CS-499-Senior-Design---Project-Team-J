@@ -10,6 +10,7 @@ public class Grazer extends Actor  {
     float maintain; //How many minutes a grazer can maintain max speed
     float speed; //Max speed
     boolean danger;
+    Point dangerLoc;
     Plant food;
     int secondsFleeing = 0;
 
@@ -24,6 +25,7 @@ public class Grazer extends Actor  {
         this.y = y;
         danger = false;
         food = null;
+        dangerLoc = new Point();
     }
 
     //Move the grazer to the correct position, unless this takes them beyond the bounds of the map
@@ -38,8 +40,38 @@ public class Grazer extends Actor  {
     //Update will determine the grazer's behavior per second of simulation time
     @Override
     public void Update(MainGameModel model) {
+        Predator predator = (Predator) model.findNearestActor(new char[] {'P'}, this);
+        if (predator == null) {
+            danger = false;
+        }
+        else {
+            danger = true;
+            dangerLoc.x = predator.GetIntX();
+            dangerLoc.y = predator.GetIntY();
+        }
+
         if (danger) {
-            //Do the thing
+            secondsFleeing++;
+            //Generate a safe direction to move
+            Point direction = new Point();
+            direction.x = 0;
+            direction.y = 0;
+            if (dangerLoc.x < x) {
+                direction.x =  1;
+            }
+            else if (dangerLoc.x > GetIntX()) {
+                direction.x = - 1;
+            }
+            if (dangerLoc.y < GetIntY()) {
+                direction.y = 1;
+            }
+            else if (dangerLoc.y > GetIntY()) {
+                direction.y = -1;
+            }
+
+            float distance = speed / 60;
+
+            model.moveActor(this, distance, direction);
             return;
         }
         else if(energy >= reproduce) {
@@ -69,12 +101,10 @@ public class Grazer extends Actor  {
 
 
     //This should be called by the predator when they pursue the grazer
-    public void inDanger(int x, int y) {
-        //danger = true;
-        //The SimMap will activate this function when a grazer is within attack range of a hungry predator
-        //x and y are the coordinates of the predator, which will (hopefully??) update every time it moves to a new square
-        //So this has to be the logic for running away and hiding
-        //Or running by another unsuspecting grazer so that it attacks them instead because that's the sort of behavior we're rewarding I guess
+    public void inDanger(Predator predator) {
+        danger = true;
+        dangerLoc.x = predator.GetIntX();
+        dangerLoc.y = predator.GetIntY();
     }
 
     //Return the current energy level
