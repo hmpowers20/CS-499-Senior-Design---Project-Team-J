@@ -11,6 +11,7 @@ public class Grazer extends Actor  {
     float speed; //Max speed
     boolean danger;
     Point dangerLoc;
+    Point destination;
     Plant food;
     int secondsFleeing = 0;
 
@@ -26,23 +27,29 @@ public class Grazer extends Actor  {
         danger = false;
         food = null;
         dangerLoc = new Point();
+        destination = new Point();
     }
-
-    //Move the grazer to the correct position, unless this takes them beyond the bounds of the map
 
 
     //Eats the plant, increases energy level accordingly
     void eat(MainGameModel model, Plant food) {
-        //model.actorsToRemove.add(food);
+        model.actorsToRemove.add(food);
         energy += (float)energy_input / 60.0;
     }
 
     //Update will determine the grazer's behavior per second of simulation time
     @Override
     public void Update(MainGameModel model) {
+        if (destination != null) {
+            if (destination.x == GetIntX() && destination.y == GetIntY()) {
+                destination = null;
+            }
+        }
+
         Predator predator = (Predator) model.findNearestActor(new char[] {'P'}, this);
         if (predator == null) {
             danger = false;
+            secondsFleeing = 0;
         }
         else {
             danger = true;
@@ -74,37 +81,39 @@ public class Grazer extends Actor  {
             model.moveActor(this, distance, direction);
             return;
         }
+
+        else if (food != null && food.GetIntX() == GetIntX() && food.GetIntY() == GetIntY()) {
+            eat(model, food);
+            destination = null;
+            food = null;
+            return;
+        }
+
         else if(energy >= reproduce) {
             return;
         }
 
         if (food == null) {
             Actor actor = model.findNearestActor(new char[]{'p'}, this);
-            if (actor == null) {
-                System.out.println("No food in sight");
-                return;
-            } else if (food != null && food.GetIntX() == GetIntX() && food.GetIntY() == GetIntY()) {
-                eat(model, food);
-            } else {
+
+            //If we found food that's not currently in reach, set destination for food
+            if (actor != null){
                 food = (Plant) actor;
+                destination = model.FindTileWithActor(food);
+            }
+
+            if (actor == null && destination == null) {
+                Random random = new Random();
+                destination = new Point();
+                destination.x = random.nextInt(model.getMapWidth());
+                destination.y = random.nextInt(model.getMapHeight());
+
             }
         }
+        //Move
+        Point motion = new Point(destination.x - GetIntX(), destination.y - GetIntY());
+        model.moveActor(this, speed / 60, motion);
 
-            Point destination = model.FindTileWithActor(food);
-            Point motion = new Point(destination.x - GetIntX(), destination.y - GetIntY());
-            model.moveActor(this, speed / 60, motion);
-
-    }
-
-    //Takes the direction to move in (int), the distance to move (float), and the game model
-    //Returns whether or not a theoretical move is both within bounds and not blocked by an obstacle
-
-
-    //This should be called by the predator when they pursue the grazer
-    public void inDanger(Predator predator) {
-        danger = true;
-        dangerLoc.x = predator.GetIntX();
-        dangerLoc.y = predator.GetIntY();
     }
 
     //Return the current energy level
