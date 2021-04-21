@@ -8,7 +8,8 @@ public class Grazer extends Actor  {
     int energy_output; //How much energy a grazer uses moving 5 distance units
     int reproduce; //Energy level to reproduce
     float maintain; //How many minutes a grazer can maintain max speed
-    float speed; //Max speed
+    float max_speed; //Max speed
+    float speed;
     boolean danger;
     Point dangerLoc;
     Point destination;
@@ -21,13 +22,14 @@ public class Grazer extends Actor  {
         this.energy_input = energy_input;
         this.reproduce = reproduce;
         this.maintain = maintain;
-        this.speed = speed;
+        this.max_speed = speed;
         this.x = x;
         this.y = y;
         danger = false;
         food = null;
         dangerLoc = new Point();
         destination = new Point();
+        speed = (float) (max_speed * .75);
     }
 
 
@@ -54,6 +56,7 @@ public class Grazer extends Actor  {
         if (predator == null) {
             danger = false;
             secondsFleeing = 0;
+            speed = (float) (max_speed * .75);
         }
         else {
             danger = true;
@@ -63,6 +66,12 @@ public class Grazer extends Actor  {
 
         if (danger) {
             secondsFleeing++;
+            if (secondsFleeing <= maintain) {
+                speed = max_speed;
+            }
+            else {
+                speed = (float)(max_speed * .75); //Can't Maintain
+            }
             //Generate a safe direction to move
             Point direction = new Point();
             direction.x = 0;
@@ -82,7 +91,8 @@ public class Grazer extends Actor  {
 
             float distance = speed / 60;
 
-            energy -= 5 / distance;
+            float energy_per_unit = (float)energy_output / 5;
+            energy -= distance / energy_per_unit;
             model.moveActor(this, distance, direction);
             return;
         }
@@ -95,8 +105,8 @@ public class Grazer extends Actor  {
         }
 
         else if(energy >= reproduce) {
-            Grazer son = new Grazer(speed, energy / 2, energy_input,energy_output,reproduce,maintain,x,y);
-            Grazer daughter = new Grazer(speed, energy / 2, energy_input,energy_output,reproduce,maintain,x,y);
+            Grazer son = new Grazer(max_speed, energy / 2, energy_input,energy_output,reproduce,maintain,x,y);
+            Grazer daughter = new Grazer(max_speed, energy / 2, energy_input,energy_output,reproduce,maintain,x,y);
             model.actorsToAdd.add(son);
             model.actorsToAdd.add(daughter);
             energy -= energy_output;
