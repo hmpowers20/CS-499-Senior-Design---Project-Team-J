@@ -40,6 +40,10 @@ public class Grazer extends Actor  {
     //Update will determine the grazer's behavior per second of simulation time
     @Override
     public void Update(MainGameModel model) {
+        if (energy <= 0) {
+            model.actorsToRemove.add(this);
+            return;
+        }
         if (destination != null) {
             if (destination.x == GetIntX() && destination.y == GetIntY()) {
                 destination = null;
@@ -78,6 +82,7 @@ public class Grazer extends Actor  {
 
             float distance = speed / 60;
 
+            energy -= 5 / distance;
             model.moveActor(this, distance, direction);
             return;
         }
@@ -90,6 +95,11 @@ public class Grazer extends Actor  {
         }
 
         else if(energy >= reproduce) {
+            Grazer son = new Grazer(speed, energy / 2, energy_input,energy_output,reproduce,maintain,x,y);
+            Grazer daughter = new Grazer(speed, energy / 2, energy_input,energy_output,reproduce,maintain,x,y);
+            model.actorsToAdd.add(son);
+            model.actorsToAdd.add(daughter);
+            energy -= energy_output;
             return;
         }
 
@@ -112,7 +122,10 @@ public class Grazer extends Actor  {
         }
         //Move
         Point motion = new Point(destination.x - GetIntX(), destination.y - GetIntY());
-        model.moveActor(this, speed / 60, motion);
+        float distance = speed / 60;
+        float energy_per_unit = (float)energy_output / 5;
+        energy -= distance / energy_per_unit;
+        model.moveActor(this, distance, motion);
 
     }
 
