@@ -16,13 +16,13 @@ public class Grazer extends Actor  {
     Plant food;
     int secondsFleeing = 0;
 
-    public Grazer(float speed, float energy, int energy_input, int energy_output, int reproduce, float maintain, float x, float y) {
+    public Grazer(float max_speed, float energy, int energy_input, int energy_output, int reproduce, float maintain, float x, float y) {
         this.energy = energy;
         this.energy_output = energy_output;
         this.energy_input = energy_input;
         this.reproduce = reproduce;
         this.maintain = maintain;
-        this.max_speed = speed;
+        this.max_speed = max_speed;
         this.x = x;
         this.y = y;
         danger = false;
