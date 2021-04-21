@@ -294,9 +294,19 @@ class MainGameModel {
     }
 
     public void initialize() {
-
-        //JavatPoint code here we goooo
         File inputFile = new File("LifeSimulation01.xml");
+        openFile(inputFile, false);
+    }
+
+    public void openFile(File inputFile, boolean restoring) {
+        //JavatPoint code here we goooo
+
+        if (restoring) {
+            actors = new ArrayList<Actor>(); //Make sure to reset sim data
+            actorsToAdd = new ArrayList<Actor>();
+            actorsToRemove = new ArrayList<Actor>();
+        }
+
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = null;
         try {
