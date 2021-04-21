@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
@@ -76,6 +77,22 @@ public class MainGameView extends JComponent
         JPanel reportPanel = new JPanel();
         reportPanel.setLayout(new BorderLayout());
         reportPanel.setPreferredSize(new Dimension(150, 500));
+
+        //**************************************Open File***************************************************************
+        JButton openButton = new JButton("OPEN");
+        openButton.setVisible(true);
+        openButton.addActionListener(e -> {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
+            int result = chooser.showOpenDialog(getParent());
+            if (result == JFileChooser.APPROVE_OPTION) {
+                File input = chooser.getSelectedFile();
+                model.openFile(input, true);
+
+                Update(model);
+            }
+        });
+        window.add(openButton);
 
         JButton reportButton = new JButton("REPORT");
         reportButton.setVisible(true);
