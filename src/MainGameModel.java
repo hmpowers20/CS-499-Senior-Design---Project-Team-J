@@ -305,6 +305,7 @@ class MainGameModel {
         //JavatPoint code here we goooo
 
         if (restoring) {
+            numSeconds = 0;
             actors = new ArrayList<Actor>(); //Make sure to reset sim data
             actorsToAdd = new ArrayList<Actor>();
             actorsToRemove = new ArrayList<Actor>();
