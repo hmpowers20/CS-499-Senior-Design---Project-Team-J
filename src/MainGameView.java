@@ -1,4 +1,7 @@
+import org.xml.sax.XMLFilter;
+
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -83,6 +86,8 @@ public class MainGameView extends JComponent
         openButton.setVisible(true);
         openButton.addActionListener(e -> {
             JFileChooser chooser = new JFileChooser();
+            FileNameExtensionFilter filter = new FileNameExtensionFilter("XML Files", "xml");
+            chooser.setFileFilter(filter);
             chooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
             int result = chooser.showOpenDialog(getParent());
             if (result == JFileChooser.APPROVE_OPTION) {
