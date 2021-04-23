@@ -157,17 +157,20 @@ class MainGameModel {
         return minDistActor;
     }
 
-    public boolean checkObstacle(float x, float y) {
-        for (Actor actor : actors) {
-            if (actor instanceof Obstacle) {
-                Obstacle obstacle = (Obstacle) actor;
-                float low_x = obstacle.x - obstacle.diameter;
-                float high_x = obstacle.x + obstacle.diameter;
-                float low_y = obstacle.y + obstacle.diameter;
-                float high_y = obstacle.y + obstacle.diameter;
+    public boolean checkObstacle(Actor actor, float moveDistance, Point direction) {
+        Point2D.Double movement = GetTransform(moveDistance, direction);
+        double x_new = actor.x + movement.x;
+        double y_new = actor.y + movement.y;
+        Point2D.Double location = new Point2D.Double(x_new, y_new);
+        return checkObstacle(location);
+    }
 
-                //Check to see if our given point falls within an obstacle's diameter
-                if ((low_x <= x) && (x <= high_x) && (low_y <= y) && (y <= high_y)) {
+    public boolean checkObstacle(Point2D.Double location) {
+        int x = (int) Math.floor(location.x);
+        int y = (int) Math.floor(location.y);
+        for (Actor other : actors) {
+            if (other instanceof Obstacle) {
+                if (other.GetIntX() == x && other.GetIntY() == y) {
                     return true;
                 }
             }
