@@ -66,8 +66,7 @@ public class MainGameView extends JComponent
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout());
 
-        Icon save = new ImageIcon("save.png");
-        JButton saveButton = new JButton(save);
+        JButton saveButton = new JButton("Save");
         saveButton.setVisible(true);
         timer = new TimePanel(model);
         saveButton.addActionListener(e -> SaveSession.Save(model));
@@ -79,11 +78,11 @@ public class MainGameView extends JComponent
 
         //*********************************Report Button Display********************************************************
         JPanel reportPanel = new JPanel();
-        reportPanel.setLayout(new BorderLayout());
-        reportPanel.setPreferredSize(new Dimension(150, 500));
+        reportPanel.setLayout(new BoxLayout(reportPanel, BoxLayout.PAGE_AXIS));
+        reportPanel.setPreferredSize(new Dimension(200, 575));
 
         //**************************************Open File***************************************************************
-        JButton openButton = new JButton("OPEN");
+        JButton openButton = new JButton("Open Another XML File");
         openButton.setVisible(true);
         openButton.addActionListener(e -> {
             JFileChooser chooser = new JFileChooser();
@@ -98,7 +97,6 @@ public class MainGameView extends JComponent
                 Update(model);
             }
         });
-        window.add(openButton);
 
         JButton reportButton = new JButton("REPORT");
         reportButton.setVisible(true);
@@ -114,12 +112,6 @@ public class MainGameView extends JComponent
         reportLabel.setVisible(true);
 
         JLabel instructions = new JLabel(text);
-
-        life_stats = new JLabel("Plants: 0\n Grazers: 0\n Predators: 0");
-        window.add(life_stats);
-
-        JLabel dimensions = new JLabel("Width: "+model.getMapWidth()+" Height: "+model.getMapHeight());
-        window.add(dimensions);
 
         //Functionality for the hyperlink to the instructions
         instructions.setForeground(Color.BLUE.darker());
@@ -144,9 +136,35 @@ public class MainGameView extends JComponent
             }
         });
 
-        reportPanel.add(reportButton, BorderLayout.PAGE_START);
-        reportPanel.add(reportLabel, BorderLayout.CENTER);
-        reportPanel.add(instructions, BorderLayout.PAGE_END);
+        //Life form & world statistics labels
+        JLabel worldStatsTitle = new JLabel("<html>Current Statistics: <br><br></html>");
+
+        JLabel lifeStats = new JLabel("<html>Number of Life Forms: <br><br></html>");
+        life_stats = new JLabel("<html>Plants: 0<br>Grazers: 0<br>Predators: 0</html>");
+
+        JLabel dimensionsTitle = new JLabel("<html>Current Dimensions: <br><br></html>");
+        JLabel dimensions = new JLabel("Width: "+model.getMapWidth()+"    Height: "+model.getMapHeight());
+
+        JLabel space1 = new JLabel("<html><br><br></html>");
+        JLabel space2 = new JLabel("<html><br><br></html>");
+        JLabel space3 = new JLabel("<html><br><br></html>");
+        JLabel space4 = new JLabel("<html><br><br></html>");
+        JLabel space5 = new JLabel("<html><br><br></html>");
+
+        reportPanel.add(openButton);
+        reportPanel.add(space1);
+        reportPanel.add(reportButton);
+        reportPanel.add(space2);
+        reportPanel.add(reportLabel);
+        reportPanel.add(space3);
+        reportPanel.add(instructions);
+        reportPanel.add(space4);
+        reportPanel.add(worldStatsTitle);
+        reportPanel.add(lifeStats);
+        reportPanel.add(life_stats);
+        reportPanel.add(space5);
+        reportPanel.add(dimensionsTitle);
+        reportPanel.add(dimensions);
         guiPanel.add(reportPanel, BorderLayout.WEST);
         //**********************************End Report Button Display***************************************************
 
@@ -194,6 +212,6 @@ public class MainGameView extends JComponent
         int pl_count = model.getNumPlants();
         int gr_count = model.getNumGrazers();
         int pr_count = model.getNumPredators();
-        life_stats.setText("Plants: "+pl_count+"\n "+" Grazers: "+gr_count+' '+" Predators: "+pr_count);
+        life_stats.setText("<html>Plants: "+pl_count+"<br>"+"Grazers: "+gr_count+"<br>"+"Predators: "+pr_count+"</html>");
     }
 }
