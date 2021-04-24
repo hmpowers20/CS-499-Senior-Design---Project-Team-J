@@ -21,6 +21,7 @@ public class MainGameView extends JComponent
     private static final int ZOOM_MIN = 0;
     private static final int ZOOM_MAX = 3;
     private static final int ZOOM_INIT = ZOOM_MAX;
+    private JLabel life_stats;
 
     private String text = "View Instructions";
 
@@ -114,6 +115,12 @@ public class MainGameView extends JComponent
 
         JLabel instructions = new JLabel(text);
 
+        life_stats = new JLabel("Plants: 0\n Grazers: 0\n Predators: 0");
+        window.add(life_stats);
+
+        JLabel dimensions = new JLabel("Width: "+model.getMapWidth()+" Height: "+model.getMapHeight());
+        window.add(dimensions);
+
         //Functionality for the hyperlink to the instructions
         instructions.setForeground(Color.BLUE.darker());
         instructions.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -184,5 +191,9 @@ public class MainGameView extends JComponent
     {
         map.PaintTiles(model);
         timer.Update(model);
+        int pl_count = model.getNumPlants();
+        int gr_count = model.getNumGrazers();
+        int pr_count = model.getNumPredators();
+        life_stats.setText("Plants: "+pl_count+"\n "+" Grazers: "+gr_count+' '+" Predators: "+pr_count);
     }
 }
