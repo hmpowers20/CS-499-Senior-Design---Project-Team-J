@@ -3,11 +3,13 @@ import java.util.Iterator;
 
 public class SimTimer {
     boolean shouldCount=false;
+    boolean terminated;
 
     public SimTimer(MainGameModel model, MainGameController controller){
         Thread thread = new Thread(() -> {
             try {
                 while (true) {
+                    terminated = true;
                     if (model.active) {
                         model.numSeconds++;
                         long startTime = System.currentTimeMillis();
@@ -16,9 +18,14 @@ public class SimTimer {
                         for (int i = 0; i < length; i++)
                         {
                             Actor actor = model.actors.get(i);
+                            if (actor instanceof Plant || actor instanceof Grazer || actor instanceof Predator) {
+                                terminated = false;
+                            }
                             actor.Update(model);
                         }
-
+                        if (terminated) {
+                            model.active = false;
+                        }
                         for (Actor actor : model.actorsToRemove)
                             model.actors.remove(actor);
                         model.actorsToRemove.clear();
