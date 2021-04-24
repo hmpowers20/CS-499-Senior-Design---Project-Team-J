@@ -208,7 +208,7 @@ class MainGameModel {
         if (sec < 10) {
             str_sec = "0" + str_sec;
         }
-        filename = "SimReport_" + str_hours + ":" + str_min + ":" + str_sec;
+        filename = "SimReport_" + str_hours + "_" + str_min + "_" + str_sec + ".txt";
         FileWriter writer = null;
         try {
             writer = new FileWriter(filename);
