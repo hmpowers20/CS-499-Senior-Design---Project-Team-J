@@ -13,10 +13,10 @@ public class Grazer extends Actor  {
     boolean danger;
     Point dangerLoc;
     Point destination;
+    Point previous;
     Plant food;
     int secondsFleeing = 0;
     int time_eating = 0;
-    boolean eating = false;
 
     public Grazer(float max_speed, float energy, int energy_input, int energy_output, int reproduce, float maintain, float x, float y) {
         this.energy = energy;
@@ -32,6 +32,7 @@ public class Grazer extends Actor  {
         dangerLoc = new Point();
         destination = new Point();
         speed = (float) (max_speed * .75);
+        previous = new Point(0,0);
 
     }
 
@@ -51,7 +52,14 @@ public class Grazer extends Actor  {
     @Override
     public void Update(MainGameModel model) {
 
-        if (food == null) {
+        if(energy >= reproduce) {
+            float new_energy = energy / 2;
+            energy = new_energy;
+            Grazer son = new Grazer(max_speed, new_energy, energy_input,energy_output,reproduce,maintain,x + 2,y);
+            Grazer daughter = new Grazer(max_speed, new_energy, energy_input,energy_output,reproduce,maintain,x - 2,y);
+            model.actorsToAdd.add(son);
+            model.actorsToAdd.add(daughter);
+            return;
         }
 
         if (energy <= 0) {
@@ -64,21 +72,24 @@ public class Grazer extends Actor  {
             }
         }
 
-        Predator predator = (Predator) model.findNearestActor(new char[] {'P'}, this);
-        if (predator == null) {
+        Actor potential = model.findNearestActor(new char[] {'P'}, this);
+        Predator predator = null;
+        if (potential == null) {
             danger = false;
             secondsFleeing = 0;
             speed = (float) (max_speed * .75);
+            destination = null;
         }
         else {
             danger = true;
+            predator = (Predator) potential;
             dangerLoc.x = predator.GetIntX();
             dangerLoc.y = predator.GetIntY();
         }
 
         if (danger) {
             secondsFleeing++;
-            if (secondsFleeing <= maintain) {
+            if (secondsFleeing <= maintain * 60) {
                 speed = max_speed;
             }
             else {
@@ -106,30 +117,27 @@ public class Grazer extends Actor  {
             float energy_per_unit = (float)energy_output / 5;
             energy -= energy_per_unit * distance;
             if (!model.checkObstacle(this, distance, direction)) {
-                model.moveActor(this, distance, direction);
+                previous = model.FindTileWithActor(this);
+                Point prev_motion = new Point(previous.x - GetIntX(), previous.y - GetIntY());
+                if (prev_motion.x != direction.x || prev_motion.y != direction.y) {
+                    model.moveActor(this, distance, direction);
+                }
             }
             else {
-                obstacleRouting(model, distance, direction);
+                obstacleRouting(model, distance);
             }
             return;
         }
 
         else if (food != null && food.GetIntX() == GetIntX() && food.GetIntY() == GetIntY()) {
+            energy += (float)energy_input / 60;
             eat(model);
             destination = null;
             return;
         }
 
 
-        else if(energy >= reproduce) {
-            float new_energy = energy / 2;
-            energy = new_energy;
-            Grazer son = new Grazer(max_speed, new_energy, energy_input,energy_output,reproduce,maintain,x + 2,y);
-            Grazer daughter = new Grazer(max_speed, new_energy, energy_input,energy_output,reproduce,maintain,x - 2,y);
-            model.actorsToAdd.add(son);
-            model.actorsToAdd.add(daughter);
-            return;
-        }
+
 
         if (food == null) {
             Actor actor = model.findNearestActor(new char[]{'p'}, this);
@@ -149,52 +157,75 @@ public class Grazer extends Actor  {
             }
         }
         //Move
+        if (food != null) {
+            destination = model.FindTileWithActor(food);
+        }
         Point motion = new Point(destination.x - GetIntX(), destination.y - GetIntY());
         float distance = speed / 60;
         float energy_per_unit = (float)energy_output / 5;
         energy -= energy_per_unit * distance;
 
+
         if (!model.checkObstacle(this, distance, motion)) {
-            model.moveActor(this, distance, motion);
+            previous = model.FindTileWithActor(this);
+            Point prev_motion = new Point(previous.x - GetIntX(), previous.y - GetIntY());
+            if (prev_motion.x != motion.x || prev_motion.y != motion.y) {
+                model.moveActor(this, distance, motion);
+            }
         }
         else {
-            obstacleRouting(model, distance, motion);
+            obstacleRouting(model, distance);
         }
 
     }
 
-    //
-    void obstacleRouting(MainGameModel model, float distance, Point motion) {
-        Point alt_motion = new Point();
-        alt_motion.y = motion.y;
-        alt_motion.x = -1 * (motion.x + 1);
-        if (!model.checkObstacle(this, distance, alt_motion)) {
-            model.moveActor(this, distance, alt_motion);
+    //This function is called when there is an obstacle blocking the preferred path of motion
+    //Takes the model in order to call moveActor, and the amount of distance to move
+    //Check out adjacent units until we find an open one to move to
+    void obstacleRouting(MainGameModel model, float distance) {
+        Point prev_motion = new Point(previous.x - GetIntX(), previous.y - GetIntY());
+        Point new_motion = new Point();
+
+        new_motion.x = - 1;
+        new_motion.y = 0;
+        if (!model.checkObstacle(this, distance, new_motion) && (new_motion.x != prev_motion.x || new_motion.y != prev_motion.y)) {
+            model.moveActor(this, distance, new_motion);
             return;
         }
-        else {
-            alt_motion.x = motion.x;
-            alt_motion.y = -1 * (motion.y + 1);
-
-            if (!model.checkObstacle(this, distance, alt_motion)) {
-                model.moveActor(this, distance, alt_motion);
-                return;
-            }
+        new_motion.y = 1;
+        if (!model.checkObstacle(this, distance, new_motion) && (new_motion.x != prev_motion.x || new_motion.y != prev_motion.y)) {
+            model.moveActor(this, distance, new_motion);
+            return;
         }
-
-        for (int i = 0; i < 4; i++) {
-            Random random = new Random();
-            destination.x = random.nextInt(model.getMapWidth());
-            destination.y = random.nextInt(model.getMapHeight());
-            motion.x = destination.x - GetIntX();
-            motion.y = destination.y - GetIntY();
-            if (!model.checkObstacle(this, distance, motion)) {
-                model.moveActor(this, distance, motion);
-                return;
-            }
+        new_motion.x = 0;
+        if (!model.checkObstacle(this, distance, new_motion) && (new_motion.x != prev_motion.x || new_motion.y != prev_motion.y)) {
+            model.moveActor(this, distance, new_motion);
+            return;
         }
-
-
+        new_motion.x = -1;
+        if (!model.checkObstacle(this, distance, new_motion) && (new_motion.x != prev_motion.x || new_motion.y != prev_motion.y)) {
+            model.moveActor(this, distance, new_motion);
+            return;
+        }
+        new_motion.y = 0;
+        if (!model.checkObstacle(this, distance, new_motion) && (new_motion.x != prev_motion.x || new_motion.y != prev_motion.y)) {
+            model.moveActor(this, distance, new_motion);
+            return;
+        }
+        new_motion.y = -1;
+        if (!model.checkObstacle(this, distance, new_motion) && (new_motion.x != prev_motion.x || new_motion.y != prev_motion.y)) {
+            model.moveActor(this, distance, new_motion);
+            return;
+        }
+        new_motion.x = 0;
+        if (!model.checkObstacle(this, distance, new_motion) && (new_motion.x != prev_motion.x || new_motion.y != prev_motion.y)) {
+            model.moveActor(this, distance, new_motion);
+            return;
+        }
+        new_motion.x = 1;
+        if (!model.checkObstacle(this, distance, new_motion) && (new_motion.x != prev_motion.x || new_motion.y != prev_motion.y)) {
+            model.moveActor(this, distance, new_motion);
+        }
     }
 
     //Return the current energy level
