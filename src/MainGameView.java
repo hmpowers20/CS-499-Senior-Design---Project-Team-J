@@ -94,12 +94,14 @@ public class MainGameView extends JComponent
         End Button Display
         ----------------------------------------------------------------*/
 
-        //*********************************Report Button Display********************************************************
+        /*-----------------------------------------------------------------------------------------------
+        Start Report Button Display
+        ------------------------------------------------------------------------------------------------*/
         JPanel reportPanel = new JPanel();
         reportPanel.setLayout(new BoxLayout(reportPanel, BoxLayout.PAGE_AXIS));
         reportPanel.setPreferredSize(new Dimension(200, 575));
 
-        //**************************************Open File***************************************************************
+        //Functionality to open different XML files
         JButton openButton = new JButton("Open Another XML File");
         openButton.setVisible(true);
         openButton.addActionListener(e -> {
@@ -154,7 +156,7 @@ public class MainGameView extends JComponent
             }
         });
 
-        //Life form & world statistics labels
+        //Life forms and world statistics labels
         JLabel worldStatsTitle = new JLabel("<html>Current Statistics: <br><br></html>");
 
         JLabel lifeStats = new JLabel("<html>Number of Life Forms: <br><br></html>");
@@ -184,9 +186,13 @@ public class MainGameView extends JComponent
         reportPanel.add(dimensionsTitle);
         reportPanel.add(dimensions);
         guiPanel.add(reportPanel, BorderLayout.WEST);
-        //**********************************End Report Button Display***************************************************
+        /*---------------------------------------------------------------------------------------------
+        End Report Button Display
+        -----------------------------------------------------------------------------------------------*/
 
-        //**********************************Zoom Panel Display**********************************************************
+        /*---------------------------------------------------------------------------------------------
+        Start Zoom Slider Display
+        ----------------------------------------------------------------------------------------------*/
         JPanel zoomPanel = new JPanel();
         zoomPanel.setLayout(new BoxLayout(zoomPanel, BoxLayout.PAGE_AXIS));
         zoomPanel.setPreferredSize(new Dimension(150, 500));
@@ -214,13 +220,15 @@ public class MainGameView extends JComponent
         zoomPanel.add(zoomSlider);
         zoomPanel.add(zoomLabel);
         guiPanel.add(zoomPanel, BorderLayout.EAST);
-        //**********************************End Zoom Panel Display******************************************************
+        /*-------------------------------------------------------------------------------------------------
+        End Zoom Slider Display
+        --------------------------------------------------------------------------------------------------*/
 
         add(guiPanel);
-        setLayout(new FlowLayout()); // DO NOT REMOVE!!!! NECESSARY
+        setLayout(new FlowLayout()); //Do not remove, necessary for GUI
 
-        window.add(this); //add MainGame to the window
-        window.pack(); //pack the window
+        window.add(this); //Add MainGame to the window
+        window.pack(); //Pack the window
     }
 
     /****************************************************************************

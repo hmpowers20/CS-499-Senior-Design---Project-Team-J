@@ -11,8 +11,14 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 
+/************************************
+This class contains the main method.
+ ************************************/
 public class LifeSimulatorDisplay {
 
+    /************************************************
+    The main method that initializes the controller.
+     ************************************************/
     public static void main(String[] args) throws IOException, InterruptedException {
         MainGameController initializer = new MainGameController();
 

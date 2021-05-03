@@ -16,6 +16,13 @@
  * @author Matthew A. Johnston (WarmWaffles)
  *
  */
+
+/*****************************************************************************************************
+Copyright (C) 2009 Philip Sturgeon <email@philsturgeon.co.uk>
+Modified By: Matthew Johnston <warmwaffles@gmail.com>
+Used by permission under their license at https://github.com/warmwaffles/Noise/blob/master/LICENSE
+ *****************************************************************************************************/
+
 public class PerlinNoise {
     private int    octaves;
     private double amplitude;
