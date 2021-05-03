@@ -1,3 +1,11 @@
+/*****************************************************
+ CS 499-01 Senior Design
+ Project Team J
+ Anushka Bhattacharjee, Haley Powers, Wren Robertson
+ Spring 2021
+ Final Deliverable: May 4, 2021
+ ****************************************************/
+
 public class Obstacle extends Actor  {
     int height, diameter;
     public Obstacle(int diameter, int height, int x, int y) {

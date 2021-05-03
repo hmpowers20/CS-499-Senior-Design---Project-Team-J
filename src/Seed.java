@@ -1,3 +1,11 @@
+/*****************************************************
+ CS 499-01 Senior Design
+ Project Team J
+ Anushka Bhattacharjee, Haley Powers, Wren Robertson
+ Spring 2021
+ Final Deliverable: May 4, 2021
+ ****************************************************/
+
 public class Seed extends Actor  {
     int max_size, maxSeeds, maxSeedDistance;
     float rate, viability;

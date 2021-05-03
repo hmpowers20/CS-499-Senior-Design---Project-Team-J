@@ -1,3 +1,11 @@
+/*****************************************************
+ CS 499-01 Senior Design
+ Project Team J
+ Anushka Bhattacharjee, Haley Powers, Wren Robertson
+ Spring 2021
+ Final Deliverable: May 4, 2021
+ ****************************************************/
+
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;

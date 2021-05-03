@@ -1,3 +1,10 @@
+/*****************************************************
+CS 499-01 Senior Design
+Project Team J
+Anushka Bhattacharjee, Haley Powers, Wren Robertson
+Spring 2021
+Final Deliverable: May 4, 2021
+ ****************************************************/
 import org.xml.sax.XMLFilter;
 
 import javax.swing.*;
@@ -13,9 +20,9 @@ import java.net.URISyntaxException;
 import java.util.Hashtable;
 
 
-/**
- * Class which contains the main method
- */
+/******************************************
+ Class which creates the GUI components.
+ ******************************************/
 public class MainGameView extends JComponent
 {
     private static final int ZOOM_MIN = 0;
@@ -29,20 +36,26 @@ public class MainGameView extends JComponent
     JSlider zoomSlider;
     TimePanel timer;
 
+    /********************************************************************************
+    MainGameView defines the buttons, displays, sliders, and the simulation display.
+     ********************************************************************************/
     public MainGameView(MainGameModel model) {
         JFrame window = new JFrame("A Day in the Life: Dinosaurs");   // create the window JFrame
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  // ensure that the window closes completely when exited
 
-        window.setResizable(false);     // Resizable is set to false so the user is prevented from changing the size of the JFrame.
+        window.setResizable(false); // Resizable is set to false so the user is prevented from changing the size of the JFrame.
         window.setLayout(new FlowLayout());
         window.setVisible(true);
 
-        JPanel guiPanel = new JPanel(); //create the panel to contain all of the components
-        guiPanel.setLayout(new BorderLayout()); //create border layout to organize components
+        JPanel guiPanel = new JPanel(); //Create the panel to contain all of the gui components
+        guiPanel.setLayout(new BorderLayout()); //Create border layout to organize components
 
-        //***************************Start Map Display******************************************************************
+        /*-------------------------------------------------------------------------------------
+        Start Grid Map Display
+        ---------------------------------------------------------------------------------------*/
         JPanel simPanel = new JPanel();
 
+        //Create the GridMap if the file is found
         try {
             map = new GridMap(model);
         } catch (FileNotFoundException e) {
@@ -50,7 +63,7 @@ public class MainGameView extends JComponent
         }
         simPanel.add(map);
 
-        JScrollPane guiScrollPane = new JScrollPane(simPanel);
+        JScrollPane guiScrollPane = new JScrollPane(simPanel); //Create scroll bars on the grid map
         guiScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         guiScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         guiScrollPane.setPreferredSize(new Dimension(600, 500));
@@ -60,9 +73,12 @@ public class MainGameView extends JComponent
         guiScrollPane.getVerticalScrollBar().addAdjustmentListener(e -> map.PaintTiles(model));
         guiScrollPane.getHorizontalScrollBar().addAdjustmentListener(e -> map.PaintTiles(model));
 
-        //************************End Map GUI Display*******************************************************************
-
-        //**********************Start Button Display********************************************************************
+        /*------------------------------------------------------------------------------------------
+        End Grid Map Display
+        --------------------------------------------------------------------------------------------*/
+        /*-------------------------------------------------------------
+        Start Button Display
+        ---------------------------------------------------------------*/
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout());
 
@@ -74,7 +90,9 @@ public class MainGameView extends JComponent
         buttonPanel.add(timer);
         buttonPanel.add(saveButton);
         guiPanel.add(buttonPanel, BorderLayout.PAGE_END);
-        //**********************************End Button Display**********************************************************
+        /*--------------------------------------------------------------
+        End Button Display
+        ----------------------------------------------------------------*/
 
         //*********************************Report Button Display********************************************************
         JPanel reportPanel = new JPanel();
@@ -205,6 +223,9 @@ public class MainGameView extends JComponent
         window.pack(); //pack the window
     }
 
+    /****************************************************************************
+    The Update function updates the gui components based on data from the model.
+     ****************************************************************************/
     public void Update(MainGameModel model)
     {
         map.PaintTiles(model);

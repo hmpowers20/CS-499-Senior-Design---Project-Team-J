@@ -1,3 +1,11 @@
+/*****************************************************
+ CS 499-01 Senior Design
+ Project Team J
+ Anushka Bhattacharjee, Haley Powers, Wren Robertson
+ Spring 2021
+ Final Deliverable: May 4, 2021
+ ****************************************************/
+
 /**
  * <p>A Perlin noise generation utility. Construct the PerlinNoise object with
  * the specified parameters and make a call to the {@link #getHeight(double, double)}

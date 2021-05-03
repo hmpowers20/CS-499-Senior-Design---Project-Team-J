@@ -1,3 +1,10 @@
+/*****************************************************
+ CS 499-01 Senior Design
+ Project Team J
+ Anushka Bhattacharjee, Haley Powers, Wren Robertson
+ Spring 2021
+ Final Deliverable: May 4, 2021
+ ****************************************************/
 import java.io.File;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
