@@ -13,6 +13,9 @@ import java.io.FileNotFoundException;
 import javax.swing.*;
 import java.util.Scanner;
 
+/********************************************************************
+This class constructs the GridMap and assigns images to the sprites.
+ ********************************************************************/
 public class GridMap extends JComponent {
     private int tileSize = 32;
     private int zoomFactor = 1;
@@ -41,7 +44,7 @@ public class GridMap extends JComponent {
             }
         }
 
-        // Add tiles actors
+        //Add tile actors
         ImageIcon grazer = new ImageIcon(new ImageIcon("images/grazer.png").getImage().getScaledInstance(tileSize, tileSize, Image.SCALE_SMOOTH));
         ImageIcon AApredator = new ImageIcon(new ImageIcon("images/AAPredator.png").getImage().getScaledInstance(tileSize, tileSize, Image.SCALE_SMOOTH));
         ImageIcon FFpredator = new ImageIcon(new ImageIcon("images/FFPredator.png").getImage().getScaledInstance(tileSize, tileSize, Image.SCALE_SMOOTH));
@@ -56,7 +59,7 @@ public class GridMap extends JComponent {
 
         lifeFormSprites = new ImageIcon[] { grazer, AApredator, FFpredator, SSpredator, grazerOffspring, boulder, otherPredatorOffspring, plant1, plant2, plant3, seed };
 
-        // Add tiles
+        //Add tile images
         ImageIcon grassTileImage = new ImageIcon(new ImageIcon("images/grass.png").getImage().getScaledInstance(tileSize, tileSize,  Image.SCALE_SMOOTH));
         ImageIcon dirtTileImage = new ImageIcon(new ImageIcon("images/dirt.png").getImage().getScaledInstance(tileSize, tileSize,  Image.SCALE_SMOOTH));
         ImageIcon sandTileImage = new ImageIcon(new ImageIcon("images/sand.png").getImage().getScaledInstance(tileSize, tileSize,  Image.SCALE_SMOOTH));
@@ -64,6 +67,9 @@ public class GridMap extends JComponent {
         tileSprites = new ImageIcon[] { grassTileImage, dirtTileImage, sandTileImage };
     }
 
+    /***************************************************
+    This function draws the grid lines of the Grid Map.
+     ***************************************************/
     public void paint(Graphics g) {
         super.paint(g);
 
@@ -83,6 +89,9 @@ public class GridMap extends JComponent {
         }
     }
 
+    /****************************************************************************
+    This function draws the tiles of the Grid Map as the user zooms in and out.
+    *****************************************************************************/
     void Zoom(int zoomFactor, MainGameModel model)
     {
         if (zoomFactor != this.zoomFactor) {
@@ -93,6 +102,9 @@ public class GridMap extends JComponent {
         }
     }
 
+    /*****************************************************************************
+    This function handles resizing the tiles and actors based on the zoom factor.
+    ******************************************************************************/
     void PaintTiles(MainGameModel model)
     {
         removeAll();
@@ -139,6 +151,9 @@ public class GridMap extends JComponent {
         revalidate();
     }
 
+    /*****************************************************************************
+    This function populates the grid map with the tile images using Perlin Noise.
+    ******************************************************************************/
     public TerrainType GetTerrainTypeFromNoise(double noise)
     {
         if (noise < -0.6)
@@ -149,6 +164,9 @@ public class GridMap extends JComponent {
             return TerrainType.Grass;
     }
 
+    /*************************************************************
+    This function assigns a life form image to each actor sprite.
+    **************************************************************/
     public ImageIcon GetSprite(Actor actor)
     {
         if (actor instanceof Predator)

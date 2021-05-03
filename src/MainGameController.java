@@ -18,11 +18,17 @@ import java.io.*;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
 
+/*******************************
+This is the controller class.
+********************************/
 public class MainGameController {
     private MainGameView view;
     private MainGameModel model;
     private SimTimer timer;
 
+    /***********************************************************************
+    This constructor creates an instance of the model, view, and the timer.
+    ************************************************************************/
     public MainGameController()
     {
         model = new MainGameModel();
@@ -30,6 +36,9 @@ public class MainGameController {
         timer = new SimTimer(model, this);
     }
 
+    /********************************
+    This function updates the view.
+    *********************************/
     public void UpdateView()
     {
         view.Update(model);
