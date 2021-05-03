@@ -25,8 +25,8 @@ public class TimePanel extends JPanel {
     JLabel speed;
 
     public TimePanel(MainGameModel model) {
-        Icon startIcon = new ImageIcon("play.png");
-        Icon pauseIcon = new ImageIcon("pause.png");
+        Icon startIcon = new ImageIcon("images/play.png");
+        Icon pauseIcon = new ImageIcon("images/pause.png");
         start = new JToggleButton();
         start.setIcon(startIcon);
         start.setSelectedIcon(pauseIcon);
