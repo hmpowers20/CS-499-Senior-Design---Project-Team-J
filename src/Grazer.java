@@ -95,17 +95,31 @@ public class Grazer extends Actor  {
         //Search for danger: detect whether there's a predator in range and set danger and dangerLoc as needed
         Actor potential = model.findNearestActor(new char[] {'P'}, this);
         Predator predator = null;
+        float p_distance = 160;
+        float d_distance = 160;
+        if (dangerLoc != null && potential != null) {
+            d_distance = Math.abs(GetIntX() - potential.GetIntX()) * Math.abs(GetIntY() - potential.GetIntY());
+            p_distance = Math.abs(GetIntX()-potential.GetIntX()) * Math.abs(GetIntY()-potential.GetIntY());
+        }
         if (potential == null) {
             danger = false;
             secondsFleeing = 0;
             speed = (float) (max_speed * .75);
             destination = null;
         }
+        else if(potential != null && danger && d_distance <= p_distance) {
+            danger = false;
+            secondsFleeing = 0;
+            speed = (float) (max_speed * .75);
+            destination = null;
+        }
         else {
-            danger = true;
-            predator = (Predator) potential;
-            dangerLoc.x = predator.GetIntX();
-            dangerLoc.y = predator.GetIntY();
+            if(Math.abs(dangerLoc.x - GetIntX()) < 50 && Math.abs(dangerLoc.y - GetIntY()) < 50) {
+                danger = true;
+                predator = (Predator) potential;
+                dangerLoc.x = predator.GetIntX();
+                dangerLoc.y = predator.GetIntY();
+            }
         }
 
         //Flee from danger, adjust speed to max until the grazer can't maintain
