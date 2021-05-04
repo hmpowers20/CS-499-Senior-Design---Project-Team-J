@@ -10,6 +10,9 @@ import java.awt.*;
 import java.awt.geom.Point2D;
 import java.util.Random;
 
+/************************************************************
+This class handles all of the behavior for the Plant actor.
+*************************************************************/
 public class Plant extends Actor  {
     int maxSeeds, maxSeedDistance, max_size;
     float viability, rate;
@@ -17,6 +20,9 @@ public class Plant extends Actor  {
 
     int seedTimer = 0;
 
+    /********************************************
+    This is the constructor for the Plant actor.
+    *********************************************/
     public Plant(float rate, float diameter, int max_size, int maxSeeds, int maxSeedDistance, float viability, float x, float y) {
         this.rate = rate;
         this.radius = diameter / 2;
@@ -28,6 +34,9 @@ public class Plant extends Actor  {
         this.max_size = max_size;
     }
 
+    /****************************************************************************
+    This function calculates the behavior of the Plants each simulation second.
+    *****************************************************************************/
     @Override
     public void Update(MainGameModel model) {
         if (radius < max_size) {
@@ -45,6 +54,9 @@ public class Plant extends Actor  {
         }
     }
 
+    /************************************************************
+    This function creates seeds and adds them to the simulation.
+    *************************************************************/
     void spawn(MainGameModel model) {
         Random random = new Random();
         int numSeeds = random.nextInt(maxSeeds);

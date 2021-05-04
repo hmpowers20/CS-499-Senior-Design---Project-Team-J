@@ -6,11 +6,12 @@
  Final Deliverable: May 4, 2021
  ****************************************************/
 
-import com.sun.tools.javac.Main;
-
 import java.awt.*;
 import java.util.Random;
 
+/*********************************************
+This class handles the Grazer actor behavior
+**********************************************/
 public class Grazer extends Actor  {
     int energy_input; //Amount of energy gained per minute while eating (is that really the best way to do that? Seems odd to be but idk)
     int energy_output; //How much energy a grazer uses moving 5 distance units

@@ -6,13 +6,17 @@
  Final Deliverable: May 4, 2021
  ****************************************************/
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
+/*****************************************************************
+This class handles the timekeeping for the simulation, and calls
+the update functions for the actors.
+******************************************************************/
 public class SimTimer {
     boolean shouldCount=false;
     boolean terminated;
 
+    /**************************************************
+    This is the constructor for the Simulation Timer.
+    ***************************************************/
     public SimTimer(MainGameModel model, MainGameController controller){
         Thread thread = new Thread(() -> {
             try {

@@ -26,6 +26,9 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 
+/***********************************************************************
+This class holds the data for the simulation and some helper functions.
+************************************************************************/
 class MainGameModel {
     int width, height;
     public java.util.List<Actor> actors = new ArrayList<>();
@@ -36,29 +39,33 @@ class MainGameModel {
     public java.util.List<Actor> actorsToRemove = new ArrayList<>();
     public java.util.List<Actor> actorsToAdd = new ArrayList<>();
 
+    /**************************************
+    This is the constructor for the model.
+     **************************************/
     MainGameModel() {
         initialize();
     }
 
+    /***********************************************************
+    This function gets the number of seconds that have passed
+    since the simulation started.
+     ***********************************************************/
     public Duration GetTimeElapsed()
     {
         return Duration.ofSeconds(numSeconds);
     }
 
+    /*************************************************
+    This function returns the location of the actor.
+    **************************************************/
     public Point FindTileWithActor(Actor actor)
     {
         return new Point((int)actor.x, (int)actor.y);
     }
 
-    public void addActor(Actor actor) {
-        actors.add(actor);
-    }
-
-    public void removeActor(Actor actor) {
-        actors.remove(actor);
-    }
-
-    //Plug in two points and see if there is an obstacle between them
+    /******************************************************************************
+    This function plugs in two points to see if there is an obstacle between them.
+    *******************************************************************************/
     public boolean obstacleBetween(int x1, int y1, int x2, int y2) {
 
         for (Actor actor : actors) {
@@ -85,6 +92,9 @@ class MainGameModel {
         return false;
     }
 
+    /********************************
+    This function moves the actors.
+    *********************************/
     public void moveActor(Actor actor, float moveDistance, Point direction)
     {
         Point2D.Double movement = GetTransform(moveDistance, direction);
@@ -95,6 +105,9 @@ class MainGameModel {
         actor.y = Math.min(Math.max(actor.y, 0), height - 1);
     }
 
+    /****************************************************************************************
+    This function calculates the transform to go a certain distance in a certain direction.
+    *****************************************************************************************/
     public static Point2D.Double GetTransform(float moveDistance, Point direction)
     {
         double directionMagnitude = Math.sqrt((double)direction.x*direction.x + (double)direction.y*direction.y);
@@ -109,35 +122,30 @@ class MainGameModel {
         return new Point2D.Double(0, 0);
     }
 
-    //Calculate distance between two points, we can rewrite this if we upgrade from rooks to queens
-    public int findDistance(Point first, Point second) {
-        int x1 = first.x;
-        int x2 = second.x;
-        int y1 = first.y;
-        int y2 = second.y;
-
-        int x = x1 - x2;
-        int y = y1 - y2;
-        int dist = Math.abs(x) + Math.abs(y);
-        return dist;
-    }
-
-    //Return location of nearest specified type of actor
+    /**************************************************************************
+    This function returns the location of the nearest specified type of actor.
+    ***************************************************************************/
     public Actor findNearestActor(char[] finding, Actor actor) {
         return findNearestActor(finding, actor.GetIntX(), actor.GetIntY(), Integer.MAX_VALUE);
     }
 
-    //Return location of nearest specified type of actor
+    /**************************************************************************
+     This function returns the location of the nearest specified type of actor.
+     ***************************************************************************/
     public Actor findNearestActor(char[] findings, int x, int y, int range) {
         return findNearestActor(findings, x, y, range, null);
     }
 
-    //Return location of nearest specified type of actor
+    /**************************************************************************
+     This function returns the location of the nearest specified type of actor.
+     ***************************************************************************/
     public Actor findNearestActor(char[] findings, int x, int y, int range, Actor actorToExclude) {
         return findNearestActor(findings, x, y, range, actorToExclude, false);
     }
 
-    //Return location of nearest specified type of actor
+    /**************************************************************************
+     This function returns the location of the nearest specified type of actor.
+     ***************************************************************************/
     public Actor findNearestActor(char[] findings, int x, int y, int range, Actor actorToExclude, boolean ignoreObstacles) {
         double minDist = Double.POSITIVE_INFINITY;
         Actor minDistActor = null;
@@ -165,6 +173,9 @@ class MainGameModel {
         return minDistActor;
     }
 
+    /********************************************************
+     This function checks if a location contains an obstacle.
+     *********************************************************/
     public boolean checkObstacle(Actor actor, float moveDistance, Point direction) {
         Point2D.Double movement = GetTransform(moveDistance, direction);
         double x_new = actor.x + movement.x;
@@ -173,6 +184,9 @@ class MainGameModel {
         return checkObstacle(location);
     }
 
+    /********************************************************
+    This function checks if a location contains an obstacle.
+    *********************************************************/
     public boolean checkObstacle(Point2D.Double location) {
         int x = (int) Math.floor(location.x);
         int y = (int) Math.floor(location.y);
@@ -186,14 +200,9 @@ class MainGameModel {
         return false;
     }
 
-    public void save(SaveSession save) {
-
-    }
-
-    public void start() {
-        active = true;
-    }
-
+    /***************************************************************************
+    This function generates all of the values for the report and the file name.
+    ****************************************************************************/
     public void report() throws IOException {
         String filename;
         int total = numSeconds;
@@ -268,6 +277,9 @@ class MainGameModel {
         writer.close();
     }
 
+    /********************************************
+    This function returns the number of grazers.
+    *********************************************/
     public int getNumGrazers() {
         int numGrazers = 0;
 
@@ -280,6 +292,9 @@ class MainGameModel {
         return numGrazers;
     }
 
+    /********************************************
+     This function returns the number of predators.
+     *********************************************/
     public int getNumPredators() {
         int numPredators = 0;
 
@@ -292,6 +307,9 @@ class MainGameModel {
         return numPredators;
     }
 
+    /********************************************
+     This function returns the number of plants.
+     *********************************************/
     public int getNumPlants() {
         int numPlants = 0;
 
@@ -304,13 +322,18 @@ class MainGameModel {
         return numPlants;
     }
 
+    /**************************************************************
+    This function initializes the model data from the input file.
+    ***************************************************************/
     public void initialize() {
         File inputFile = new File("LifeSimulation01.xml");
         openFile(inputFile, false);
     }
 
+    /*****************************************************
+    This function reads in the data from the input file.
+    ******************************************************/
     public void openFile(File inputFile, boolean restoring) {
-        //JavatPoint code here we goooo
 
         if (restoring) {
             numSeconds = 0;
@@ -596,10 +619,16 @@ class MainGameModel {
         }
     }
 
+    /*******************************************************
+    This function returns the height of the simulation map.
+    ********************************************************/
     public int getMapHeight() {
         return height;
     }
 
+    /******************************************************
+    This function returns the width of the simulation map.
+    *******************************************************/
     public int getMapWidth() {
         return width;
     }

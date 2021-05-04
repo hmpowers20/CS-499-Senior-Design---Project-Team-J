@@ -10,6 +10,9 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Random;
 
+/********************************************************
+This class handles the behavior for the Predator actor.
+*********************************************************/
 public class Predator extends Actor {
     public final int SightRange = 150;
     public final int SmellRange = 25;
@@ -39,6 +42,9 @@ public class Predator extends Actor {
 
     public enum Speed { Fast, Moderate, Slow }
 
+    /**********************************************
+    This class holds each aspect of the genotype.
+    ***********************************************/
     public class Genotype
     {
         public Aggression aggression;
@@ -46,6 +52,9 @@ public class Predator extends Actor {
         public Speed speed;
     }
 
+    /************************************************
+    This is the constructor for the Predator actor.
+    *************************************************/
     public Predator(float speed_hod, float speed_hed, float speed_hor, int energy, int energy_output, float gestation, String genotype, float maintain, int reproduce, int maxOffspring, int e_offspring, float x, float y) {
         this.speed_hed = speed_hed;
         this.speed_hod = speed_hod;
@@ -65,6 +74,9 @@ public class Predator extends Actor {
         hungry = true;
     }
 
+    /*******************************************************
+    This function returns the speed of the Predator actor.
+    ********************************************************/
     public float GetSpeed()
     {
         float speed = 0;
@@ -83,6 +95,9 @@ public class Predator extends Actor {
         return speed;
     }
 
+    /*****************************************************************************
+    This function calculates the behavior of the Predator each simulation second.
+    ******************************************************************************/
     @Override
     public void Update(MainGameModel model) {
         if (partner != null)
@@ -137,6 +152,10 @@ public class Predator extends Actor {
         }
     }
 
+    /**************************************************************
+    This function assigns Predator offspring a genotype based on
+    Mendel's Laws of Genetics.
+    ***************************************************************/
     public String Mendel(Predator other)
     {
         String ret = "";
@@ -190,6 +209,9 @@ public class Predator extends Actor {
         return ret;
     }
 
+    /**********************************************************************
+    This function determines the target for the Predator actor to pursue.
+    ***********************************************************************/
     public Actor GetTarget(MainGameModel model)
     {
         Actor ret = null;
@@ -223,12 +245,18 @@ public class Predator extends Actor {
         return ret;
     }
 
+    /********************************************************
+    This function moves the Predator towards another actor.
+    *********************************************************/
     public void MoveToward(MainGameModel model, Actor actor)
     {
         Point location = model.FindTileWithActor(actor);
         MoveToward(model, location);
     }
 
+    /********************************************************
+     This function moves the Predator towards a point.
+     *********************************************************/
     public void MoveToward(MainGameModel model, Point moveLoc)
     {
         Point direction = new Point(moveLoc.x - GetIntX(), moveLoc.y - GetIntY());
@@ -237,6 +265,9 @@ public class Predator extends Actor {
         model.moveActor(this, speed, direction);
     }
 
+    /****************************************************
+    This function parses a string to return a genotype.
+    *****************************************************/
     public Genotype GetGenotype(String genotypeString) {
         Genotype ret = new Genotype();
         String[] genotypes = genotypeString.split("\\s+");
@@ -281,19 +312,10 @@ public class Predator extends Actor {
         return ret;
     }
 
-    public void inDanger(Predator attacker) {
-        //The reason I'm passing in the predator rather than the coordinates is so that this function can check whether the other predator
-        //is trying to eat them or mate with them
-    }
-
-    public float getEnergy() {
-        return energy;
-    }
-
-    public void setParent(Actor parent) {
-        this.parent = parent;
-    }
-
+    /*************************************************************************
+    This function returns true if a Predator succeeds in eating another
+    actor, and returns false if it does not succeed in eating another actor.
+    **************************************************************************/
     public boolean Eat(MainGameModel model, Actor actor)
     {
         if (actor instanceof Seed || actor instanceof Obstacle || actor instanceof Plant)
@@ -320,12 +342,19 @@ public class Predator extends Actor {
         return false;
     }
 
+    /********************************************************************************
+    This function gives the Predator energy if it succeeds in eating another actor.
+    *********************************************************************************/
     private void EatSuccess(MainGameModel model, Actor actor)
     {
         energy += .9f * actor.energy;
         model.actorsToRemove.add(actor);
     }
 
+    /***************************************************************
+    This function gets the chance that a Predator will succeed in
+    eating another actor.
+    ****************************************************************/
     public double GetEatChance(Actor actor)
     {
         if (genotype.strength == Strength.Strong)

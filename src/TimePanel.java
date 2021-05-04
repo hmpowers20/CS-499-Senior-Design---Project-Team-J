@@ -7,15 +7,13 @@
  ****************************************************/
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.time.Duration;
 
+/**********************************************************
+This class handles the UI portion of the Simulation Timer.
+***********************************************************/
 public class TimePanel extends JPanel {
 
     JToggleButton start;
@@ -24,6 +22,9 @@ public class TimePanel extends JPanel {
     JButton resetSpeed;
     JLabel speed;
 
+    /*******************************************
+    This is the constructor for the Time Panel.
+    ********************************************/
     public TimePanel(MainGameModel model) {
         Icon startIcon = new ImageIcon("images/play.png");
         Icon pauseIcon = new ImageIcon("images/pause.png");
@@ -85,6 +86,9 @@ public class TimePanel extends JPanel {
         add(speed);
 }
 
+    /******************************************************************
+    This function updates the Time Panel with the time from the model.
+     ******************************************************************/
     public void Update(MainGameModel model) {
         Duration duration = model.GetTimeElapsed();
         String strDays, strHrs, strMin, strSec;

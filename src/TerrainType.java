@@ -12,6 +12,9 @@ public enum TerrainType
     Dirt,
     Sand;
 
+    /*******************************************
+    This converts an integer to a terrain type.
+    ********************************************/
     public static TerrainType fromInteger(int i)
     {
         switch(i)
@@ -27,6 +30,9 @@ public enum TerrainType
         return null;
     }
 
+    /*******************************************
+    This converts a terrain type to an integer.
+    ********************************************/
     public int toInteger()
     {
         if (this == Grass)

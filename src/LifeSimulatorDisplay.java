@@ -5,11 +5,6 @@
  Spring 2021
  Final Deliverable: May 4, 2021
  ****************************************************/
-import org.xml.sax.SAXException;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
-import java.io.IOException;
 
 /************************************
 This class contains the main method.
@@ -19,7 +14,7 @@ public class LifeSimulatorDisplay {
     /************************************************
     The main method that initializes the controller.
      ************************************************/
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) {
         MainGameController initializer = new MainGameController();
 
     }

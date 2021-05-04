@@ -6,14 +6,19 @@
  Final Deliverable: May 4, 2021
  ****************************************************/
 
+/***************************************************
+This class handles the behavior for the Seed actor.
+****************************************************/
 public class Seed extends Actor  {
     int max_size, maxSeeds, maxSeedDistance;
     float rate, viability;
 
     int germinateTimer = 0;
 
+    /*******************************************
+    This is the constructor for the Seed actor.
+    ********************************************/
     public Seed(float rate, int max_size, int maxSeeds, int maxSeedDistance, float viability, float x, float y) {
-        //All of these are just to pass on to the plant offspring. Is there a better way to do that? Probably.
         this.rate = rate;
         this.max_size = max_size;
         this.maxSeeds = maxSeeds;
@@ -23,6 +28,9 @@ public class Seed extends Actor  {
         this.y = y;
     }
 
+    /*************************************************************************
+    This function calculates the behavior of the Seed each simulation second.
+    **************************************************************************/
     @Override
     public void Update(MainGameModel model) {
         germinateTimer++;
@@ -35,11 +43,5 @@ public class Seed extends Actor  {
                 model.actorsToAdd.add(plant);
             }
         }
-    }
-
-    void generate() {
-        //This should be called somehow after the correct amount of time or what have you
-        //Plant plant = new Plant(rate, radius, max_size, maxSeeds,maxSeedDistance, viability, x, y);
-        //Do whatever to make the seed self destruct now
     }
 }

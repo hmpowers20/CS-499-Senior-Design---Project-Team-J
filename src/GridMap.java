@@ -8,10 +8,7 @@
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileNotFoundException;
 import javax.swing.*;
-import java.util.Scanner;
 
 /********************************************************************
 This class constructs the GridMap and assigns images to the sprites.
@@ -29,7 +26,10 @@ public class GridMap extends JComponent {
 
     JScrollPane scrollPane;
 
-    GridMap(MainGameModel model) throws FileNotFoundException {
+    /*************************************************
+    This is the constructor that creates the GridMap.
+    **************************************************/
+    GridMap(MainGameModel model) {
         rows = model.getMapHeight();
         columns = model.getMapWidth();
 
@@ -103,7 +103,7 @@ public class GridMap extends JComponent {
     }
 
     /*****************************************************************************
-    This function handles resizing the tiles and actors based on the zoom factor.
+    This function handles drawing the tiles and actors based on the zoom factor.
     ******************************************************************************/
     void PaintTiles(MainGameModel model)
     {
@@ -152,7 +152,7 @@ public class GridMap extends JComponent {
     }
 
     /*****************************************************************************
-    This function populates the grid map with the tile images using Perlin Noise.
+    This function assigns a tile's terrain type based on the noise value.
     ******************************************************************************/
     public TerrainType GetTerrainTypeFromNoise(double noise)
     {
