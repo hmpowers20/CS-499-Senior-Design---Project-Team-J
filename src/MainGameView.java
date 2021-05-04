@@ -55,11 +55,7 @@ public class MainGameView extends JComponent
         JPanel simPanel = new JPanel();
 
         //Create the GridMap if the file is found
-        try {
-            map = new GridMap(model);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        map = new GridMap(model);
         simPanel.add(map);
 
         JScrollPane guiScrollPane = new JScrollPane(simPanel); //Create scroll bars on the grid map
