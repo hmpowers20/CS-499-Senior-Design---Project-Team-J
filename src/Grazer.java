@@ -18,11 +18,11 @@ public class Grazer extends Actor  {
     int reproduce; //Energy level to reproduce
     float maintain; //How many minutes a grazer can maintain max speed
     float max_speed; //Max speed
-    float speed;
-    boolean danger;
-    Point dangerLoc;
-    Point destination;
-    Point previous;
+    float speed; //Current speed
+    boolean danger; //Is the grazer currently fleeing?
+    Point dangerLoc; //If the grazer is fleeing, where is the predator?
+    Point destination; //The point the grazer is moving towards
+    Point previous; //The previous location for the grazer; prevents getting stuck between two points
     Plant food;
     int secondsFleeing = 0;
     int time_eating = 0;
@@ -46,10 +46,14 @@ public class Grazer extends Actor  {
     }
 
 
-    //Eats the plant, increases energy level accordingly
+    /****************************************************************************************************************************
+     * This function is called to increase a grazer's energy while they're eating, and remove the plant once it is fully consumed
+     * @param model
+     ****************************************************************************************************************************/
     void eat(MainGameModel model) {
 
         time_eating++;
+        energy += (float)energy_input / 60;
         if (time_eating > 60) {
             model.actorsToRemove.add(food);
             food = null;
@@ -57,10 +61,14 @@ public class Grazer extends Actor  {
         }
     }
 
-    //Update will determine the grazer's behavior per second of simulation time
+    /******************************************************************************
+     * Update function called once per second in simulation time, controls behavior
+     * @param model
+     ******************************************************************************/
     @Override
     public void Update(MainGameModel model) {
 
+        //If grazer has enough energy to reproduce, do so
         if(energy >= reproduce) {
             float new_energy = energy / 2;
             energy = new_energy;
@@ -71,16 +79,20 @@ public class Grazer extends Actor  {
             return;
         }
 
+        //If grazer no longer has energy, remove self
         if (energy <= 0) {
             model.actorsToRemove.add(this);
             return;
         }
+
+        //Set destination to null if we are currently at previous destination, prevent getting stuck
         if (destination != null) {
             if (destination.x == GetIntX() && destination.y == GetIntY()) {
                 destination = null;
             }
         }
 
+        //Search for danger: detect whether there's a predator in range and set danger and dangerLoc as needed
         Actor potential = model.findNearestActor(new char[] {'P'}, this);
         Predator predator = null;
         if (potential == null) {
@@ -96,6 +108,7 @@ public class Grazer extends Actor  {
             dangerLoc.y = predator.GetIntY();
         }
 
+        //Flee from danger, adjust speed to max until the grazer can't maintain
         if (danger) {
             secondsFleeing++;
             if (secondsFleeing <= maintain * 60) {
@@ -138,8 +151,8 @@ public class Grazer extends Actor  {
             return;
         }
 
+        //If we've reached food, eat
         else if (food != null && food.GetIntX() == GetIntX() && food.GetIntY() == GetIntY()) {
-            energy += (float)energy_input / 60;
             eat(model);
             destination = null;
             return;
@@ -165,7 +178,6 @@ public class Grazer extends Actor  {
 
             }
         }
-        //Move
         if (food != null) {
             destination = model.FindTileWithActor(food);
         }
@@ -175,6 +187,7 @@ public class Grazer extends Actor  {
         energy -= energy_per_unit * distance;
 
 
+        //Check whether there's an obstacle in the way, proceed normally if not or call obstacleRouting if there is
         if (!model.checkObstacle(this, distance, motion)) {
             previous = model.FindTileWithActor(this);
             Point prev_motion = new Point(previous.x - GetIntX(), previous.y - GetIntY());
@@ -188,13 +201,17 @@ public class Grazer extends Actor  {
 
     }
 
-    //This function is called when there is an obstacle blocking the preferred path of motion
-    //Takes the model in order to call moveActor, and the amount of distance to move
-    //Check out adjacent units until we find an open one to move to
+    /***************************************************************
+     * Call obstacleRouting when optimal path is blocked by obstacle
+     * Finds alternative route if one exists
+     * @param model
+     * @param distance
+     ***************************************************************/
     void obstacleRouting(MainGameModel model, float distance) {
         Point prev_motion = new Point(previous.x - GetIntX(), previous.y - GetIntY());
         Point new_motion = new Point();
 
+        //Perform a clockwise series of checks to find an adjacent distance unit with no obstacle, move into it when it's found
         new_motion.x = - 1;
         new_motion.y = 0;
         if (!model.checkObstacle(this, distance, new_motion) && (new_motion.x != prev_motion.x || new_motion.y != prev_motion.y)) {
@@ -237,7 +254,10 @@ public class Grazer extends Actor  {
         }
     }
 
-    //Return the current energy level
+    /**********************************
+     * Returns the current energy level
+     * @return energy level
+     **********************************/
     public float getEnergy() {
         return energy;
     }
