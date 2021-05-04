@@ -98,11 +98,16 @@ class MainGameModel {
     public void moveActor(Actor actor, float moveDistance, Point direction)
     {
         Point2D.Double movement = GetTransform(moveDistance, direction);
+        float newX = (float)(actor.x + movement.x);
+        newX = Math.min(Math.max(newX, 0), width - 1);
+        float newY = (float)(actor.y + movement.y);
+        newY = Math.min(Math.max(newY, 0), height - 1);
 
-        actor.x += movement.x;
-        actor.x = Math.min(Math.max(actor.x, 0), width - 1);
-        actor.y += movement.y;
-        actor.y = Math.min(Math.max(actor.y, 0), height - 1);
+        if (!obstacleBetween(actor.GetIntX(), actor.GetIntY(), (int)Math.floor(newX), (int)Math.floor(newY)))
+        {
+            actor.x = newX;
+            actor.y = newY;
+        }
     }
 
     /****************************************************************************************
