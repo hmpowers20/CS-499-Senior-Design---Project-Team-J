@@ -15,7 +15,7 @@ class ObstacleTest {
 
     }
 
-    @Test
+    /*@Test
     void getHeight() {
 
         assertEquals(1, ob.getHeight());
@@ -26,5 +26,5 @@ class ObstacleTest {
     void getDiameter() {
 
         assertEquals(1, ob.getDiameter());
-    }
+    }*/
 }
