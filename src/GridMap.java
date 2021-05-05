@@ -17,8 +17,8 @@ public class GridMap extends JComponent {
     private int tileSize = 32;
     private int zoomFactor = 1;
 
-    private int rows;
-    private int columns;
+    public int rows;
+    public int columns;
     ImageIcon tileSprites[];
     ImageIcon lifeFormSprites[];
 

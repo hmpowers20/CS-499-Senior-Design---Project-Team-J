@@ -28,6 +28,8 @@ public class MainGameView extends JComponent
     private static final int ZOOM_MAX = 3;
     private static final int ZOOM_INIT = ZOOM_MAX;
     private JLabel life_stats;
+    private JLabel dimensions;
+    private JPanel simPanel;
 
     private String text = "View Instructions";
 
@@ -52,7 +54,7 @@ public class MainGameView extends JComponent
         /*-------------------------------------------------------------------------------------
         Start Grid Map Display
         ---------------------------------------------------------------------------------------*/
-        JPanel simPanel = new JPanel();
+        simPanel = new JPanel();
 
         //Create the GridMap if the file is found
         map = new GridMap(model);
@@ -109,6 +111,13 @@ public class MainGameView extends JComponent
                 File input = chooser.getSelectedFile();
                 model.openFile(input, true);
 
+                JScrollPane scrollPane = map.scrollPane;
+                map = new GridMap(model);
+                map.scrollPane = scrollPane;
+                simPanel.removeAll();
+                simPanel.add(map);
+                zoomSlider.setValue(3);
+
                 Update(model);
             }
         });
@@ -158,7 +167,7 @@ public class MainGameView extends JComponent
         life_stats = new JLabel("<html>Plants: 0<br>Grazers: 0<br>Predators: 0</html>");
 
         JLabel dimensionsTitle = new JLabel("<html>Current Dimensions: <br><br></html>");
-        JLabel dimensions = new JLabel("Width: "+model.getMapWidth()+"    Height: "+model.getMapHeight());
+        dimensions = new JLabel("Width: "+model.getMapWidth()+"    Height: "+model.getMapHeight());
 
         JLabel space1 = new JLabel("<html><br><br></html>");
         JLabel space2 = new JLabel("<html><br><br></html>");
@@ -237,5 +246,6 @@ public class MainGameView extends JComponent
         int gr_count = model.getNumGrazers();
         int pr_count = model.getNumPredators();
         life_stats.setText("<html>Plants: "+pl_count+"<br>"+"Grazers: "+gr_count+"<br>"+"Predators: "+pr_count+"</html>");
+        dimensions.setText("Width: "+model.getMapWidth()+"    Height: "+model.getMapHeight());
     }
 }
