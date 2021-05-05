@@ -3,6 +3,10 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
+/**************************************************************
+ Unit Test file changed and not used because the Obstacle class has no behaviour
+ ***************************************************************/
+
 class ObstacleTest {
 
     MainGameModel m = mock (MainGameModel.class);

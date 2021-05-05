@@ -3,7 +3,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.junit.jupiter.api.Assertions.*;
-
+/**************************************************************
+ Unit Test file:
+ It insures the methods in the grazer class are all working
+ ***************************************************************/
 
 
 
